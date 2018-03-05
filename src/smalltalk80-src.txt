@@ -1,0 +1,235 @@
+attemptToAllocateChunklnCurrentSegment: size
+---
+| objectPointer predecessor next availableSize excessSize newPointer |
+size < BigSize ifTrue: [objectPointer ~ self removeFromFreeChunkList: size].
+objectPointer notNil ifTrue: [^objectPointer]. " small chunk of exact size handy so use it"
+
+predecessor ~ NonPointer.
+"remember predecessor of chunk under consideration"
+objectPointer ~ self headOfFreeChunkList: LastFreeChunkList inSegment: currentSegment.
+"the search loop stops when the end of the linked list is encountered"
+[objectPointer = NonPointer] whileFalse:
+	[availableSize ~ self sizeBitsOf: objectPointer.
+	 availableSize = size ifTrue: " exact fit --remove from free chunk list and return"
+		[next ~ self classBitsOf: objectPointer. " the link to the next chunk"
+		 predecessor = NonPointer ifTrue: "it was the head of the list; make the next item the head "
+                     [self headOfFreeChunkList: LastFreeChunkList inSegment: currentSegment put: next]
+                     ifFalse: " it was between two chunks; link them together"
+                     [self classBitsOf: predecessor put: next].
+                 ^objectPointer].
+        "this chunk was either too big or too small; inspect the amount of variance "
+         excessSize ~ availableSize - size.
+         excessSize > = HeaderSize
+           ifTrue: " can be broken into two usable parts: return the second part"
+                  [" obtain an object table entry for the second part"
+                     newPointer ~ self obtainPointer: size location: (self locationBitsOf: objectPointer) + excessSize.
+                     newPointer isNil ifTrue: [^nil].
+                   "correct the size of the first part (which remains on the free list)"
+                   self sizeBitsOf: objectPointer put: excessSize.
+                   ^newPointer]
+           ifFalse: " not big enough to use; try the next chunk on the list"
+                    [predecessor ~ objectPointer.
+                     objectPointer ~ self classBitsOf: objectPointer]
+         ].
+^nil "the end of the linked list was reached and no fit was found"
+
+==================
+obtainPointer: size location: location
+| objectPointer |
+objectPointer ~ self removeFromFreePointerList.
+objectPointer isNil ifTrue: [tnil].
+self ot: objectPointer put: O.
+self segmentBitsOf: objectPointer put: currentSegment.
+self locationBitsOf: objectPointer put: location.
+self sizeBitsOf: objectPointer put: size.
+^objectPointer
+
+
+==================
+deallocate: objectPointer " Preliminary Version "
+| space |
+space ~ self spaceOccupiedBy: objectPointer.
+self toFreeChunkList: (space min: BigSize)
+add: objectPointer
+
+
+==================
+abandonFreeChunkslnSegment: segment
+| lowWaterMark objectPointer nextPointer |
+lowWaterMark ~ HeapSpaceStop. "first assume that no chunk is free"
+HeaderSize to: BigSize do: "for each free-chunk list"
+[ :size |
+  objectPointer ~ self headOfFreeChunkList: size inSegment: segment.
+  [objectPointer = NonPointer] whileFalse:
+    [lowWaterMark ~ lowWaterMark min: (self locationBitsOf: objectPointer).
+     nextPointer ~ self classBitsOf: objectPointer.
+     " link to next free chunk"
+     self classBitsOf: objectPointer put: NonPointer.
+     " distinguish for sweep"
+     self releasePointer: objectPointer.
+     " add entry to free-pointer list"
+     objectPointer ~ nextPointer].
+   self resetFreeChunkList: size inSegment: segment].
+^ lowWaterMark
+
+==================
+releasePointer: objectPointer
+self freeBitOf: objectPointer put: 1.
+self toFreePointerListAdd: objectPointer
+==================
+
+reverseHeapPointersAbove: lowWaterMark
+| size |
+0 to: ObjectTableSize-2 by: 2 do:
+[ :objectPointer |
+(self freeBitOf: objectPointer) = O
+    ifTrue: "the Object Table entry is in use"
+            [(self segmentBitsOf: objectPointer) = currentSegment
+                   ifTrue: " the object is in this segment"
+                      [(self locationBitsOf: objectPointer) < lowWaterMark
+                             ifFalse: "the object will be swept"
+                                [size ~ self sizeBitsOf: objectPointer.
+                                 " rescue the size"
+                                 self sizeBitsOf: objectPointer put: objectPointer. " reverse the pointer"
+                                 self locationBitsOf: objectPointer put: size " save the size"]
+                      ]
+             ]
+]
+
+==================
+sweepCurrentSegmentFrom: IowWaterMark
+| si di objectPointer size space |
+si ~ di ~ lowWaterMark.
+[si < HeapSpaceStop] whileTrue: " for each object, si"
+   [(wordMemory segment: currentSegment word: si + 1) = NonPointer
+       ifTrue: " unallocated, so skip it"
+         [size ~ wordMemory segment: currentSegment word: si.
+          si ~ si + size]
+       ifFalse: " allocated, so keep it, but move it to compact storage"
+         [objectPointer ~ wordMemory segment: currentSegment word: si.
+          size ~ self locationBitsOf: objectPointer.
+          "the reversed size"
+          self locationBitsOf: objectPointer put: di. " point object table at new location"
+          self sizeBitsOf: objectPointer put: size. "restore the size to its proper place"
+          si ~ si + 1. " skip the size"
+          di ~ di + 1. " skip the size"
+          2 to: (self spaceOccupiedBy: objectPointer) do: "move the rest of the object"
+          [:i | wordMemory segment: currentSegment word: di put: (wordMemory segment: currentSegment word: si).
+                si ~ si + 1.
+                di ~ di + 1]
+         ]
+    ].
+^di
+==================
+compactCurrentSegment
+| lowWaterMark bigSpace |
+lowWaterMark ~ self abandonFreeChunkslnSegment: currentSegment.
+lowWaterMark < HeapSpaceStop
+ ifTrue:
+   [self reverseHeapPointersAbove: lowWaterMark.
+    bigSpace ~ self sweepCurrentSegmentFrom: lowWaterMark.
+    self deallocate: (self obtainPointer: (HeapSpaceStop+ 1-bigSpace) location: bigSpace)]
+
+====================
+countUp: objectPointer
+| count |
+(self isIntegerObject: objectPointer)
+  ifFatse:
+    [count ~ (self countBitsOf: objectPointer) + 1.
+     count < 129 ifTrue: [self countBitsOf: objectPointer put: count]].
+^objectPointer
+
+====================
+countDown: rootObjectPointer
+| count |
+(self isIntegerObject: rootObjectPointer)
+  ifTrue: [^ rootObjectPointer]
+  ifFatse: "this is a pointer, so decrement its reference count"
+   [^ self forAllObjectsAccessibleFrom: rootObjectPointer
+           suchThat: "the predicate decrements the count and tests for zero"
+             [ :objectPointer |
+               count ~ (self countBitsOf: objectPointer) - 1.
+               count < 127
+                 ifTrue: [self countBitsOf: objectPointer put: count].
+               count=0 ]
+
+           do: "the action zeroes the count and deallocates the object"
+             [ :objectPointer |
+                self countBitsOf: objectPointer put: 0.
+                self deallocate: objectPointer]
+   ]
+
+=====================
+forAllObjectsAccessibleFrom: objectPointer suchThat: predicate do: action
+(predicate value: objectPointer)
+  ifTrue:
+    [^self forAllOtherObjectsAccessibleFrom: objectPointer suchThat: predicate do: action]
+
+=====================
+forAllOtherObjectsAccessibleFrom: objectPointer suchThat: predicate do: action
+| next |
+1 to: (self lastPointerOf: objectPointer)-1 do:
+  [ :offset |
+    next ~ self heapChunkOf: objectPointer word: offset.
+    ((self isIntegerObject: next) == false and: [predicate value: next])
+        ifTrue: " it's a non-immediate object and it should be processed"
+          [self forAllOtherObjectsAccessibleFrom: next suchThat: predicate do: action]].
+" all pointers have been followed; now perform the action"
+action value: objectPointer.
+^objectPointer
+
+======================
+reclaimlnaccessibleObjects
+  self zeroReferenceCounts.
+  self markAccessibteObjects.
+  self rectifyCountsAndDealtocateGarbage
+
+======================
+zeroReferenceCounts
+0 to: ObjectTableSize-2 by: 2 do: [ :objectPointer | self countBitsOf: objectPointer put: 0]
+
+======================
+markAccessibleObjects
+rootObjectPointers do: [ :rootObjectPointer | self markObjectsAccessibleFrom: rootObjectPointer]
+
+======================
+markObjectsAccessibleFrom: rootObjectPointer
+| unmarked |
+^self forAllObjectsAccessibleFrom: rootObjectPointer
+           suchThat: "the predicate tests for an unmarked object and marks it"
+              [ :objectPointer |
+                    unmarked ~ (self countBitsOf: objectPointer) = O.
+                    unmarked ifTrue: [self countBitsOf: objectPointer put: 1].
+                    unmarked]
+           do: "the action restores the mark to count= 1"
+              [ :objectPointer | self countBitsOf: objectPointer put: 1]
+
+======================
+rectifyCountsAndDeallocateGarbage
+| count |
+" reset heads of free-chunk lists"
+FirstHeapSegment to: LastHeapSegment
+  do: "for every segment"
+      [ :segment |
+          HeaderSize to: BigSize
+             do: "for every free chunk list"
+                 [ :size | "reset the list head"
+                       self resetFreeChunkList: size inSegment: segment]].
+"rectify counts, and deallocate garbage"
+0 to: ObjectTableSize-2 by: 2 do: "for every object table entry"
+    [ :objectPointer |
+       (self freeBitOf: objectPointer)=0
+          ifTrue: "if it is not a free entry"
+            [(count ~ self countBitsOf: objectPointer) = 0
+                ifTrue: "it is unmarked, so deallocate it"
+                  [self deallocate: objectPointer]
+                ifFalse: "it is marked, so rectify reference counts"
+                  [count < 128
+                      ifTrue: " subtract 1 to compensate for the mark"
+                        [self countBitsOf: objectPointer put: count - 1 ] .
+                   1 to: (self lastPointerOf: objectPointer)-1 do:
+                      [ :offset | "increment the reference count of each pointer"
+                          self countUp: (self heapChunkOf: objectPointer word: offset)]]]].
+"be sure the root objects don't disappear"
+rootObjectPointers do: [ :rootObjectPointer | self countUp: rootObjectPointer].
+self countBitsOf: NilPointer put: 128
