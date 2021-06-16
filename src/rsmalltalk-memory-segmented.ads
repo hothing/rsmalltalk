@@ -26,6 +26,19 @@ package RSmalltalk.Memory.Segmented is
       byteIndex : in     T_Byte;
       value     : in     T_Byte) return T_Byte;
 
+   procedure put
+     (rwm     : in out T_SegmentedMemory;
+      segment : in     T_SegmentIndex;
+      index   : in     T_Word;
+      value   : in     T_Word);
+   
+   procedure put
+     (rwm       : in out T_SegmentedMemory;
+      segment   : in     T_SegmentIndex;
+      index     : in     T_Word;
+      byteIndex : in     T_Byte;
+      value     : in     T_Byte);
+
 private
    
    type T_BytesInWord is record

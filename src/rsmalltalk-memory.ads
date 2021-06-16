@@ -33,17 +33,17 @@ package RSmalltalk.Memory is
 
    subtype T_Int is Integer_16;
    subtype T_CompactSmallInteger is T_Int range -(2**14 -1) .. 2**14;
-   type T_SmallInt is record
-      smi   : Boolean;
-      value : T_CompactSmallInteger;
-   end record;
-
-   for T_SmallInt use record
-      smi   at 0 range 0 ..  0;
-      value at 0 range 1 .. 15;
-   end record;
-   for T_SmallInt'Size use T_Word'Size;
-
+--     type T_SmallInt is record
+--        smi   : Boolean;
+--        value : T_CompactSmallInteger;
+--     end record;
+--
+--     for T_SmallInt use record
+--        smi   at 0 range 0 ..  0;
+--        value at 0 range 1 .. 15;
+--     end record;
+--     for T_SmallInt'Size use T_Word'Size;
+--
    CE_NoError      : constant := 0;
    CE_NotObject    : constant := 1;
    CE_OutOfMemory  : constant := 2;
@@ -54,7 +54,8 @@ package RSmalltalk.Memory is
    C_MethodClass  : constant := 20;
 
 
-   -- ObjectMemory:ObjectTable
+   function isIntegerObject(ptr: T_Pointer) return Boolean;
+
    function integerValueOf (ptr : T_Pointer) return T_Int;
 
    function integerObjectOf (value : T_Int) return T_Pointer;

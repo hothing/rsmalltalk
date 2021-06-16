@@ -37,24 +37,25 @@ package body RSmalltalk.Memory.Segmented is
       end case;
    end get;
 
-   function put
+   procedure put_internal
      (rwm     : in out T_SegmentedMemory;
       segment : in     T_SegmentIndex;
       index   : in     T_Word;
-      value   : in     T_Word) return T_Word
+      value   : in     T_Word)
    is
       x : T_Word;
       for x'Address use rwm.segments(segment)(index)'Address;
    begin
-      return x;
-   end put;
+      x := value;
+   end put_internal;
+   pragma Inline_Always(put_internal);
 
-   function put
+   procedure put_internal
      (rwm       : in out T_SegmentedMemory;
       segment   : in     T_SegmentIndex;
       index     : in     T_Word;
       byteIndex : in     T_Byte;
-      value     : in     T_Byte) return T_Byte
+      value     : in     T_Byte)
    is
       x : T_BytesInWord;
       offs : T_Word := (index + T_Word(byteIndex / 2));
@@ -65,6 +66,53 @@ package body RSmalltalk.Memory.Segmented is
          when 1 => x.ah := value;
          when others => null; -- never happens
       end case;
+   end put_internal;
+   pragma Inline_Always(put_internal);
+
+
+   procedure put
+     (rwm     : in out T_SegmentedMemory;
+      segment : in     T_SegmentIndex;
+      index   : in     T_Word;
+      value   : in     T_Word)
+   is
+   begin
+      put_internal(rwm, segment, index, value);
+   end put;
+   pragma Inline(put);
+
+   procedure put
+     (rwm       : in out T_SegmentedMemory;
+      segment   : in     T_SegmentIndex;
+      index     : in     T_Word;
+      byteIndex : in     T_Byte;
+      value     : in     T_Byte)
+   is
+   begin
+      put_internal(rwm, segment, index, byteIndex, value);
+   end put;
+   pragma Inline(put);
+
+   function put
+     (rwm     : in out T_SegmentedMemory;
+      segment : in     T_SegmentIndex;
+      index   : in     T_Word;
+      value   : in     T_Word) return T_Word
+   is
+   begin
+      put_internal(rwm, segment, index, value);
+      return value;
+   end put;
+
+   function put
+     (rwm       : in out T_SegmentedMemory;
+      segment   : in     T_SegmentIndex;
+      index     : in     T_Word;
+      byteIndex : in     T_Byte;
+      value     : in     T_Byte) return T_Byte
+   is
+   begin
+      put_internal(rwm, segment, index, byteIndex, value);
       return value;
    end put;
 
