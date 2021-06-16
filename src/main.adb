@@ -33,4 +33,8 @@ begin
    vb := get(sm, 0, 1, 1);
    TextIO.Put_Line(T_Byte'Image(vb));
 
+   -- excepions
+   --put(sm, 10, 1, 0, 10); -- OK
+   put(sm, 0, 65535, 255, 10); -- OOPS! must raise an exception, but did not!
+
 end Main;
