@@ -33,15 +33,14 @@ package body RSmalltalk.Memory.Objects is
    -- putObjectRef --
    ------------------
 
-   function putObjectRef
+   procedure putObjectRef
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_Word)
-      return T_Word
    is
    begin
       cantBeIntegerObject(mem, objectPointer);
-      return put(mem.wordMemory, ObjectTableSegment, ObjectTableStart + objectPointer, value);
+      put(mem.wordMemory, ObjectTableSegment, ObjectTableStart + objectPointer, value);
    end putObjectRef;
 
    ---------------------
@@ -65,11 +64,10 @@ package body RSmalltalk.Memory.Objects is
    -- putCountFieldOf --
    ---------------------
 
-   function putCountFieldOf
+   procedure putCountFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_Word)
-      return T_Word
    is
       b : T_Byte;
       oeh : T_ObjectEntryHeader;
@@ -83,7 +81,7 @@ package body RSmalltalk.Memory.Objects is
       end if;
       x := getObjectRef(mem, objectPointer);
       oeh.count := b;
-      return putObjectRef(mem, objectPointer, x);
+      putObjectRef(mem, objectPointer, x);
    end putCountFieldOf;
 
    -------------------
@@ -107,11 +105,10 @@ package body RSmalltalk.Memory.Objects is
    -- putOddFieldOf --
    -------------------
 
-   function putOddFieldOf
+   procedure putOddFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : Boolean)
-      return T_Word
    is
       oeh : T_ObjectEntryHeader;
       x : T_Word;
@@ -119,7 +116,7 @@ package body RSmalltalk.Memory.Objects is
    begin
       x := getObjectRef(mem, objectPointer);
       oeh.o := value;
-      return putObjectRef(mem, objectPointer, x);
+      putObjectRef(mem, objectPointer, x);
    end putOddFieldOf;
 
    --------------------
@@ -143,11 +140,10 @@ package body RSmalltalk.Memory.Objects is
    -- putFreeFieldOf --
    --------------------
 
-   function putFreeFieldOf
+   procedure putFreeFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : Boolean)
-      return T_Word
    is
       oeh : T_ObjectEntryHeader;
       x : T_Word;
@@ -155,7 +151,7 @@ package body RSmalltalk.Memory.Objects is
    begin
       x := getObjectRef(mem, objectPointer);
       oeh.f := value;
-      return putObjectRef(mem, objectPointer, x);
+      putObjectRef(mem, objectPointer, x);
    end putFreeFieldOf;
 
    -------------------
@@ -179,11 +175,10 @@ package body RSmalltalk.Memory.Objects is
    -- putPtrFieldOf --
    -------------------
 
-   function putPtrFieldOf
+   procedure putPtrFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : Boolean)
-      return T_Word
    is
       oeh : T_ObjectEntryHeader;
       x : T_Word;
@@ -191,7 +186,7 @@ package body RSmalltalk.Memory.Objects is
    begin
       x := getObjectRef(mem, objectPointer);
       oeh.p := value;
-      return putObjectRef(mem, objectPointer, x);
+      putObjectRef(mem, objectPointer, x);
    end putPtrFieldOf;
 
    -----------------------
@@ -215,11 +210,10 @@ package body RSmalltalk.Memory.Objects is
    -- putSegmentFieldOf --
    -----------------------
 
-   function putSegmentFieldOf
+   procedure putSegmentFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_SegmentIndex)
-      return T_Word
    is
       oeh : T_ObjectEntryHeader;
       x : T_Word;
@@ -227,7 +221,7 @@ package body RSmalltalk.Memory.Objects is
    begin
       x := getObjectRef(mem, objectPointer);
       oeh.segment := value;
-      return putObjectRef(mem, objectPointer, x);
+      putObjectRef(mem, objectPointer, x);
    end putSegmentFieldOf;
 
    ------------------------
@@ -247,14 +241,13 @@ package body RSmalltalk.Memory.Objects is
    -- putLocationFieldOf --
    ------------------------
 
-   function putLocationFieldOf
+   procedure putLocationFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_Word)
-      return T_Word
    is
    begin
-      return putObjectRef(mem, objectPointer, value);
+      putObjectRef(mem, objectPointer, value);
    end putLocationFieldOf;
 
    --------------------
@@ -282,18 +275,17 @@ package body RSmalltalk.Memory.Objects is
    -- putHeapChunkOf --
    --------------------
 
-   function putHeapChunkOf
+   procedure putHeapChunkOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       offset        : T_Word;
       value         : T_Word)
-      return T_Word
    is
    begin
       --        ^wordMemory segment: (self segmentBitsOf: objectPointer)
       --          word: ((self IocationBitsOf: objectPointer) + offset)
       --            put: value
-      return put(mem.wordMemory,
+      put(mem.wordMemory,
                      getSegmentFieldOf(mem, objectPointer),
                      offset + getLocationFieldOf(mem, objectPointer),
                      value
@@ -325,15 +317,14 @@ package body RSmalltalk.Memory.Objects is
    -- putHeapChunkByteOf --
    ------------------------
 
-   function putHeapChunkByteOf
+   procedure putHeapChunkByteOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       offset        : T_Word;
       value         : T_Byte)
-      return T_Byte
    is
    begin
-      return put(mem.wordMemory,
+      put(mem.wordMemory,
                      getSegmentFieldOf(mem, objectPointer),
                      (offset mod 2 ) + getLocationFieldOf(mem, objectPointer),
                      T_Byte(offset rem 2 ),
@@ -359,14 +350,13 @@ package body RSmalltalk.Memory.Objects is
    -- putSizeFieldOf --
    --------------------
 
-   function putSizeFieldOf
+   procedure putSizeFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_Word)
-      return T_Word
    is
    begin
-      return putHeapChunkOf(mem, objectPointer, 0, value);
+      putHeapChunkOf(mem, objectPointer, 0, value);
    end putSizeFieldOf;
 
    ---------------------
@@ -387,14 +377,13 @@ package body RSmalltalk.Memory.Objects is
    -- putClassFieldOf --
    ---------------------
 
-   function putClassFieldOf
+   procedure putClassFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_Word)
-      return T_Word
    is
    begin
-      return putHeapChunkOf(mem, objectPointer, 1, value);
+      putHeapChunkOf(mem, objectPointer, 1, value);
    end putClassFieldOf;
 
    ----------------------
@@ -453,13 +442,12 @@ package body RSmalltalk.Memory.Objects is
    -- putHeadOfFreePointerList --
    ------------------------------
 
-   function putHeadOfFreePointerList
+   procedure putHeadOfFreePointerList
      (mem           : in out T_Memory;
       objectPointer : T_Pointer)
-      return T_Word
    is
    begin
-      return put(mem.wordMemory,
+      put(mem.wordMemory,
                      ObjectTableSegment,
                      FreePointerList,
                      objectPointer);
@@ -470,12 +458,11 @@ package body RSmalltalk.Memory.Objects is
    --------------------------
 
    procedure addToFreePointerList (mem : in out T_Memory; objectPointer : T_Pointer) is
-      w : T_Word;
    begin
       -- self locationBitsOf: objectPointer put: (self headOfFreePointerList).
       -- self headOfFreePointerListPut: objectPointer
-      w := putLocationFieldOf(mem, objectPointer, getHeadOfFreePointerList(mem));
-      w := putHeadOfFreePointerList(mem, objectPointer);
+      putLocationFieldOf(mem, objectPointer, getHeadOfFreePointerList(mem));
+      putHeadOfFreePointerList(mem, objectPointer);
    end addToFreePointerList;
 
    -------------------------------
@@ -484,7 +471,6 @@ package body RSmalltalk.Memory.Objects is
 
    function removeFromFreePointerList (mem : in out T_Memory) return T_Pointer is
       op : T_Pointer;
-      w  : T_Word;
    begin
       -- | objectPointer |
       -- objectPointer := self headOfFreePointerList.
@@ -494,7 +480,7 @@ package body RSmalltalk.Memory.Objects is
       op := NilPointer;
       op := getHeadOfFreePointerList(mem);
       if op /= NonPointer then
-         w := putHeadOfFreePointerList(mem, getLocationFieldOf(mem, op));
+         putHeadOfFreePointerList(mem, getLocationFieldOf(mem, op));
       end if;
       return op;
    end removeFromFreePointerList;
@@ -518,16 +504,15 @@ package body RSmalltalk.Memory.Objects is
    -- putHeadOfFreeChunkList --
    ----------------------------
 
-   function putHeadOfFreeChunkList
+   procedure putHeadOfFreeChunkList
      (mem           : in out T_Memory;
       size          : T_Word;
       segment       : T_SegmentIndex;
       objectPointer : T_Pointer)
-      return T_Word
    is
    begin
       -- ^wordMemory segment: segment word: FirstFreeChunkList + size put: objectPointer
-      return put(mem.wordMemory, segment, FirstFreeChunkList + size, objectPointer);
+      put(mem.wordMemory, segment, FirstFreeChunkList + size, objectPointer);
    end putHeadOfFreeChunkList;
 
    ------------------------
@@ -540,15 +525,14 @@ package body RSmalltalk.Memory.Objects is
       objectPointer : T_Pointer)
    is
       seg : T_SegmentIndex;
-      w : T_Word;
    begin
       --  | segment |
       -- segment ~ self segmentBitsOf: objectPointer.
       -- self classBitsOf: objectPointer put: (self headOfFreeChunkList: size inSegment: segment).
       -- self headOfFreeChunkList: size inSegment: segment put: objectPointer
       seg := getSegmentFieldOf(mem, objectPointer);
-      w := putClassFieldOf(mem, objectPointer, getHeadOfFreeChunkList(mem, size, seg));
-      w := putHeadOfFreeChunkList(mem, size, seg, objectPointer);
+      putClassFieldOf(mem, objectPointer, getHeadOfFreeChunkList(mem, size, seg));
+      putHeadOfFreeChunkList(mem, size, seg, objectPointer);
    end addToFreeChunkList;
 
    -----------------------------
@@ -568,7 +552,7 @@ package body RSmalltalk.Memory.Objects is
       op := getHeadOfFreeChunkList(mem, size, mem.currentSegment);
       if op /= NonPointer then
          w := getClassFieldOf(mem, op);
-         w := putHeadOfFreeChunkList(mem, size, mem.currentSegment, w);
+         putHeadOfFreeChunkList(mem, size, mem.currentSegment, w);
       else
          op := NilPointer;
       end if;
@@ -584,10 +568,9 @@ package body RSmalltalk.Memory.Objects is
       size    : T_Word;
       segment : T_SegmentIndex)
    is
-      w : T_Word;
    begin
       --  self headOfFreeChunkList: size inSegment: segment put: NonPointer
-      w := putHeadOfFreeChunkList(mem, size, segment, NonPointer);
+      putHeadOfFreeChunkList(mem, size, segment, NonPointer);
    end resetFreeChunkList;
 
    --------------
@@ -599,7 +582,6 @@ package body RSmalltalk.Memory.Objects is
                       size : T_Word;
                       classPointer : T_Pointer) return T_Pointer is
       op : T_Pointer;
-      w : T_Word;
    begin
       -- " ** Preliminary Version ** "
       --  | objectPointer |
@@ -612,9 +594,9 @@ package body RSmalltalk.Memory.Objects is
       --  "return the new object's pointer"
       --  ^objectPointer
       op := allocateChunk(mem, size);
-      w := putClassFieldOf(mem, op, classPointer);
+      putClassFieldOf(mem, op, classPointer);
       for i in HeaderSize .. (size - 1) loop
-         w := putHeapChunkOf(mem, op, i, NilPointer);
+         putHeapChunkOf(mem, op, i, NilPointer);
       end loop;
       return op;
    end allocate;
@@ -689,7 +671,7 @@ package body RSmalltalk.Memory.Objects is
       return T_Pointer
    is
       objectPointer, newPointer, predecessor, next : T_Pointer;
-      availableSize, excessSize, w : T_Word;
+      availableSize, excessSize : T_Word;
    begin
       if size < BigSize then --- small chunk of exact size handy so use it
          objectPointer := removeFromFreeChunkList(mem, size);
@@ -705,9 +687,9 @@ package body RSmalltalk.Memory.Objects is
             if availableSize = size then --- exact fit --remove from free chunk list and return
                next := getClassFieldOf(mem, objectPointer); --- the link to the next chunk
                if predecessor = NonPointer then
-                  w := putHeadOfFreeChunkList(mem, LastFreeChunkList, mem.currentSegment, next);
+                  putHeadOfFreeChunkList(mem, LastFreeChunkList, mem.currentSegment, next);
                else --- it was between two chunks; link them together
-                  w := putClassFieldOf(mem, predecessor, next);
+                  putClassFieldOf(mem, predecessor, next);
                   exit; --!! TO REWORK
                end if;
             else
@@ -718,7 +700,7 @@ package body RSmalltalk.Memory.Objects is
                   newPointer := obtainPointer(mem, size, getLocationFieldOf(mem, objectPointer) + excessSize);
                   if newPointer /= NilPointer then
                      --- correct the size of the first part (which remains on the free list)
-                     w := putSizeFieldOf(mem, objectPointer, excessSize);
+                     putSizeFieldOf(mem, objectPointer, excessSize);
                   end if;
                   objectPointer := newPointer;
                   exit; --!! TO REWORK
@@ -745,14 +727,13 @@ package body RSmalltalk.Memory.Objects is
       return T_Pointer
    is
       objectPointer : T_Pointer;
-      w : T_Word;
    begin
       objectPointer := removeFromFreeChunkList(mem, size);
       if objectPointer /= NilPointer then
-         w := putObjectRef(mem, objectPointer, 0);
-         w := putSegmentFieldOf(mem, objectPointer, mem.currentSegment);
-         w := putLocationFieldOf(mem, objectPointer, location);
-         w := putSizeFieldOf(mem, objectPointer, size);
+         putObjectRef(mem, objectPointer, 0);
+         putSegmentFieldOf(mem, objectPointer, mem.currentSegment);
+         putLocationFieldOf(mem, objectPointer, location);
+         putSizeFieldOf(mem, objectPointer, size);
       end if;
       return objectPointer;
    end obtainPointer;
@@ -779,7 +760,7 @@ package body RSmalltalk.Memory.Objects is
       segment : T_SegmentIndex)
       return T_Word
    is
-      lowWaterMark, w : T_Word;
+      lowWaterMark : T_Word;
       objectPointer, nextPointer : T_Pointer;
    begin
       lowWaterMark := HeapSpaceStop; --- first assume that no chunk is free
@@ -792,7 +773,7 @@ package body RSmalltalk.Memory.Objects is
                lowWaterMark := T_Word'Min(lowWaterMark, getLocationFieldOf(mem, objectPointer));
                nextPointer := getClassFieldOf(mem, objectPointer);
                --- link to next free chunk
-               w := putClassFieldOf(mem, objectPointer, NonPointer);
+               putClassFieldOf(mem, objectPointer, NonPointer);
                --- distinguish for sweep
                releasePointer(mem, objectPointer);
                --- add entry to free-pointer list
@@ -809,9 +790,8 @@ package body RSmalltalk.Memory.Objects is
    --------------------
 
    procedure releasePointer (mem : in out T_Memory; ptr : T_Pointer) is
-      w : T_Word;
    begin
-      w := putFreeFieldOf(mem, ptr, True);
+      putFreeFieldOf(mem, ptr, True);
       addToFreePointerList(mem, ptr);
    end releasePointer;
 
@@ -820,7 +800,7 @@ package body RSmalltalk.Memory.Objects is
    ------------------------------
 
    procedure reverseHeapPointersAbove (mem : in out T_Memory; lowWaterMark : T_Word) is
-      size, w : T_Word;
+      size : T_Word;
       objectPointer : T_Pointer;
    begin
       objectPointer := 0;
@@ -832,8 +812,8 @@ package body RSmalltalk.Memory.Objects is
                if getLocationFieldOf(mem, objectPointer) >= lowWaterMark then
                   --- the object will be swept
                   size := getSizeFieldOf(mem, objectPointer); --- rescue the size
-                  w := putSizeFieldOf(mem, objectPointer, objectPointer); --- reverse the pointer
-                  w := putLocationFieldOf(mem, objectPointer, size); --- save the size
+                  putSizeFieldOf(mem, objectPointer, objectPointer); --- reverse the pointer
+                  putLocationFieldOf(mem, objectPointer, size); --- save the size
                end if;
             end if;
          end if;
@@ -861,8 +841,8 @@ package body RSmalltalk.Memory.Objects is
             objectPointer := get(mem.wordMemory, mem.currentSegment, si);
             size := getLocationFieldOf(mem, objectPointer);
             --- the reversed size
-            w := putLocationFieldOf(mem, objectPointer, di); --- point object table at new location
-            w := putSizeFieldOf(mem, objectPointer, size); --- restore the size to its proper place
+            putLocationFieldOf(mem, objectPointer, di); --- point object table at new location
+            putSizeFieldOf(mem, objectPointer, size); --- restore the size to its proper place
             --- skip the size
             si := si + 1; di := di + 1;
             --- move the rest of the object
@@ -929,20 +909,18 @@ package body RSmalltalk.Memory.Objects is
    -- countUp --
    -------------
 
-   function countUp
+   procedure countUp
      (mem : in out T_Memory;
       objectPointer : T_Pointer)
-      return T_Pointer
    is
-      count, w : T_Word;
+      count : T_Word;
    begin
       if not isIntegerObject(objectPointer) then
          count := getCountFieldOf(mem, objectPointer);
          if count <= 128 then
-            w := putCountFieldOf(mem, objectPointer, count + 1);
+            putCountFieldOf(mem, objectPointer, count + 1);
          end if;
       end if;
-      return objectPointer;
    end countUp;
 
    ---------------
@@ -954,7 +932,7 @@ package body RSmalltalk.Memory.Objects is
    begin
       count := getCountFieldOf(mem, value) - 1;
       if count < 127 then
-         count := putCountFieldOf(mem, value, count);
+         putCountFieldOf(mem, value, count);
       end if;
       return count = 0;
    end countDown_predicat;
@@ -964,10 +942,9 @@ package body RSmalltalk.Memory.Objects is
       null;
    end countDown_action;
 
-   function countDown
+   procedure countDown
      (mem : in out T_Memory;
       objectPointer : T_Pointer)
-      return T_Pointer
    is
       p : T_Pointer;
    begin
@@ -980,7 +957,6 @@ package body RSmalltalk.Memory.Objects is
          null;
          --FIXME:END
       end if;
-      return p;
    end countDown;
 
    --------------------------------
@@ -999,11 +975,11 @@ package body RSmalltalk.Memory.Objects is
    -------------------------
 
    procedure zeroReferenceCounts (mem : in out T_Memory) is
-      offset, w : T_Word;
+      offset : T_Word;
    begin
       offset := 0;
       while offset < ObjectTableSize - 2 loop
-         w := putCountFieldOf(mem, offset, 0);
+         putCountFieldOf(mem, offset, 0);
          -- WARNING! This code is unclear.
          -- I dont understand why use offset in object table without convertion
          offset := offset + 2;
@@ -1021,9 +997,8 @@ package body RSmalltalk.Memory.Objects is
    end markOAF_predicat;
 
    procedure markOAF_action(mem : in out T_Memory; value: in out T_Word) is
-      w : T_Word;
    begin
-      w := putCountFieldOf(mem, value, 1);
+      putCountFieldOf(mem, value, 1);
    end markOAF_action;
 
    function markObjectsAccessibleFrom(mem: in out T_Memory; objectPointer : in out T_Pointer) return T_Pointer is
@@ -1069,7 +1044,7 @@ package body RSmalltalk.Memory.Objects is
    procedure rectifyCountsAndDeallocateGarbage (mem : in out T_Memory) is
       count, s : T_Word;
       seg : T_SegmentIndex;
-      p, p2, p3, p4 : T_Pointer;
+      p, p2, p3 : T_Pointer;
    begin
       --- reset heads of free-chunk lists
       seg := FirstHeapSegment;
@@ -1091,12 +1066,12 @@ package body RSmalltalk.Memory.Objects is
                deallocate(mem, p);
             else --- it is marked, so rectify reference counts
                if count < 128 then ---  subtract 1 to compensate for the mark
-                  s := putCountFieldOf(mem, p, count - 1);
+                  putCountFieldOf(mem, p, count - 1);
                end if;
                p2 := 1;
                p3 := getLastPointerOf(mem, p) - 1;
                while p2 <= p3 loop --- increment the reference count of each pointer
-                  p4 := countUp(mem, getHeapChunkOf(mem, p, p2));
+                  countUp(mem, getHeapChunkOf(mem, p, p2));
                end loop;
             end if;
          end if;
@@ -1124,19 +1099,18 @@ package body RSmalltalk.Memory.Objects is
       return T_Pointer
    is
       op, default : T_Pointer;
-      w : T_Word;
    begin
-      w := countUp(mem, classPointer);
+      countUp(mem, classPointer);
       op := allocateChunk(mem, size + (extraWord mod 2));
-      w := putClassFieldOf(mem, op, classPointer);
-      w := putOddFieldOf(mem, op, odd);
-      w := putPtrFieldOf(mem, op, ptr);
+      putClassFieldOf(mem, op, classPointer);
+      putOddFieldOf(mem, op, odd);
+      putPtrFieldOf(mem, op, ptr);
       default := NilPointer;
       if (not ptr) then default := 0; end if;
       for i in HeaderSize .. size - 1 loop
-         w := putHeapChunkOf(mem, op, T_Word(i), default);
+         putHeapChunkOf(mem, op, T_Word(i), default);
       end loop;
-      w := putSizeFieldOf(mem, op, size);
+      putSizeFieldOf(mem, op, size);
       return op;
    end allocate;
 
@@ -1158,18 +1132,18 @@ package body RSmalltalk.Memory.Objects is
    -- storePointer --
    ------------------
 
-   function storePointer
+   procedure storePointer
      (mem           : in out T_Memory;
       fieldIndex    : T_Word;
       objectPointer : T_Pointer;
-      valuePointer  : T_Word) return T_Word
+      valuePointer  : T_Word)
    is
-      chnk, w : T_Word;
+      chnk : T_Word;
    begin
       chnk := HeaderSize + fieldIndex;
-      w := countUp(mem, valuePointer);
-      w := countDown(mem, getHeapChunkOf(mem, objectPointer, chnk));
-      return putHeapChunkOf(mem, objectPointer, chnk, valuePointer);
+      countUp(mem, valuePointer);
+      countDown(mem, getHeapChunkOf(mem, objectPointer, chnk));
+      putHeapChunkOf(mem, objectPointer, chnk, valuePointer);
    end storePointer;
 
    ---------------
@@ -1190,14 +1164,14 @@ package body RSmalltalk.Memory.Objects is
    -- storeWord --
    ---------------
 
-   function storeWord
+   procedure storeWord
      (mem           : in out T_Memory;
       wordIndex     : T_Word;
       objectPointer : T_Pointer;
-      valueWord     : T_Word) return T_Word
+      valueWord     : T_Word)
    is
    begin
-      return putHeapChunkOf(mem, objectPointer, HeaderSize, valueWord);
+      putHeapChunkOf(mem, objectPointer, HeaderSize, valueWord);
    end storeWord;
 
    ---------------
@@ -1218,14 +1192,14 @@ package body RSmalltalk.Memory.Objects is
    -- storeByte --
    ---------------
 
-   function storeByte
+   procedure storeByte
      (mem           : in out T_Memory;
       byteIndex     : T_Word;
       objectPointer : T_Pointer;
-      valueByte     : T_Byte) return T_Byte
+      valueByte     : T_Byte)
    is
    begin
-      return putHeapChunkByteOf(mem, objectPointer, HeaderSize * 2 + byteIndex, valueByte);
+      putHeapChunkByteOf(mem, objectPointer, HeaderSize * 2 + byteIndex, valueByte);
    end storeByte;
 
    --------------------------
@@ -1233,9 +1207,8 @@ package body RSmalltalk.Memory.Objects is
    --------------------------
 
    procedure increaseReferencesTo (mem : in out T_Memory; objectPointer : T_Pointer) is
-      w : T_Word;
    begin
-      w := countUp(mem, objectPointer);
+      countUp(mem, objectPointer);
    end increaseReferencesTo;
 
    --------------------------
@@ -1243,9 +1216,8 @@ package body RSmalltalk.Memory.Objects is
    --------------------------
 
    procedure decreaseReferencesTo (mem : in out T_Memory; objectPointer : T_Pointer) is
-      w : T_Word;
    begin
-      w := countDown(mem, objectPointer);
+      countDown(mem, objectPointer);
    end decreaseReferencesTo;
 
    ------------------
@@ -1406,22 +1378,21 @@ package body RSmalltalk.Memory.Objects is
       firstLoc : T_Word;
       firstPnt : Boolean;
       firstOdd : Boolean;
-      w : T_Word;
    begin
       firstSeg := getSegmentFieldOf(mem, firstPtr);
       firstLoc := getLocationFieldOf(mem, firstPtr);
       firstPnt := getPtrFieldOf(mem, firstPtr);
       firstOdd := getOddFieldOf(mem, firstPtr);
 
-      w := putSegmentFieldOf(mem, firstPtr, getSegmentFieldOf(mem, secondPtr));
-      w := putLocationFieldOf(mem, firstPtr, getLocationFieldOf(mem, secondPtr));
-      w := putPtrFieldOf(mem, firstPtr, getPtrFieldOf(mem, secondPtr));
-      w := putOddFieldOf(mem, firstPtr, getOddFieldOf(mem, secondPtr));
+      putSegmentFieldOf(mem, firstPtr, getSegmentFieldOf(mem, secondPtr));
+      putLocationFieldOf(mem, firstPtr, getLocationFieldOf(mem, secondPtr));
+      putPtrFieldOf(mem, firstPtr, getPtrFieldOf(mem, secondPtr));
+      putOddFieldOf(mem, firstPtr, getOddFieldOf(mem, secondPtr));
 
-      w := putSegmentFieldOf(mem, secondPtr, firstSeg);
-      w := putLocationFieldOf(mem, secondPtr, firstLoc);
-      w := putPtrFieldOf(mem, secondPtr, firstPnt);
-      w := putOddFieldOf(mem, secondPtr, firstOdd);
+      putSegmentFieldOf(mem, secondPtr, firstSeg);
+      putLocationFieldOf(mem, secondPtr, firstLoc);
+      putPtrFieldOf(mem, secondPtr, firstPnt);
+      putOddFieldOf(mem, secondPtr, firstOdd);
    end swapPointers;
 
 end RSmalltalk.Memory.Objects;

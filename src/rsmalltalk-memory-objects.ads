@@ -100,115 +100,109 @@ package RSmalltalk.Memory.Objects is
 
    function getObjectRef (mem : T_Memory; objectPointer : T_Pointer) return T_Word;
 
-   function putObjectRef
+   procedure putObjectRef
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : T_Word) return T_Word;
+      value         : T_Word);
 
    function getCountFieldOf
      (mem           : T_Memory;
       objectPointer : T_Pointer) return T_Word;
 
-   function putCountFieldOf
+   procedure putCountFieldOf
      (mem           : in out T_Memory;
       objectPointer : in T_Pointer;
-      value         : in T_Word) return T_Word;
+      value         : in T_Word);
 
    function getOddFieldOf
      (mem           : T_Memory;
       objectPointer : T_Pointer) return Boolean;
 
-   function putOddFieldOf
+   procedure putOddFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : Boolean)
-      return T_Word;
+      value         : Boolean);
 
    function getFreeFieldOf
      (mem           : T_Memory;
       objectPointer : T_Pointer) return Boolean;
 
-   function putFreeFieldOf
+   procedure putFreeFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : Boolean)
-      return T_Word;
+      value         : Boolean);
 
    function getPtrFieldOf
      (mem           : T_Memory;
       objectPointer : T_Pointer) return Boolean;
 
-   function putPtrFieldOf
+   procedure putPtrFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : Boolean)
-      return T_Word;
+      value         : Boolean);
 
    function getSegmentFieldOf
      (mem           : T_Memory;
       objectPointer : T_Pointer)
       return T_SegmentIndex;
 
-   function putSegmentFieldOf
+   procedure putSegmentFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : T_SegmentIndex)
-      return T_Word;
+      value         : T_SegmentIndex);
 
    function getLocationFieldOf
      (mem           : T_Memory;
       objectPointer : T_Pointer) return T_Word;
 
-   function putLocationFieldOf
+   procedure putLocationFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : T_Word) return T_Word;
+      value         : T_Word);
 
    -- ObjectMemory:HeapChunk
+   
    function getHeapChunkOf
      (mem           : T_Memory;
       objectPointer : T_Pointer;
       offset        : T_Word) return T_Word;
 
-   function putHeapChunkOf
+   procedure putHeapChunkOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       offset        : T_Word;
-      value         : T_Word)
-      return T_Word;
+      value         : T_Word);
 
    function getHeapChunkByteOf
      (mem           : T_Memory;
       objectPointer : T_Pointer;
       offset        : T_Word) return T_Byte;
 
-   function putHeapChunkByteOf
+   procedure putHeapChunkByteOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       offset        : T_Word;
-      value         : T_Byte)
-      return T_Byte;
+      value         : T_Byte);
 
    --
+   
    function getSizeFieldOf
      (mem           : T_Memory;
       objectPointer : T_Pointer) return T_Word;
 
-   function putSizeFieldOf
+   procedure putSizeFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : T_Word)
-      return T_Word;
+      value         : T_Word);
 
    function getClassFieldOf
      (mem           : T_Memory;
       objectPointer : T_Pointer) return T_Word;
 
-   function putClassFieldOf
+   procedure putClassFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : T_Word)
-      return T_Word;
+      value         : T_Word);
 
    function getLastPointerOf
      (mem           : T_Memory;
@@ -219,12 +213,12 @@ package RSmalltalk.Memory.Objects is
       objectPointer : T_Pointer) return T_Word;
 
    -- ObjectMemory methods for word memory
+   
    function getHeadOfFreePointerList (mem : T_Memory) return T_Word;
 
-   function putHeadOfFreePointerList
+   procedure putHeadOfFreePointerList
      (mem           : in out T_Memory;
-      objectPointer : T_Pointer)
-      return T_Word;
+      objectPointer : T_Pointer);
 
    procedure addToFreePointerList (mem : in out T_Memory;
                                    objectPointer : T_Pointer);
@@ -236,12 +230,11 @@ package RSmalltalk.Memory.Objects is
       size    : T_Word;
       segment : T_SegmentIndex) return T_Word;
 
-   function putHeadOfFreeChunkList
+   procedure putHeadOfFreeChunkList
      (mem           : in out T_Memory;
       size          : T_Word;
       segment       : T_SegmentIndex;
-      objectPointer : T_Pointer)
-      return T_Word;
+      objectPointer : T_Pointer);
 
    procedure addToFreeChunkList
      (mem           : in out T_Memory;
@@ -314,13 +307,11 @@ package RSmalltalk.Memory.Objects is
 --                                         predicate : T_Predicat;
 --                                         action : T_Action) return T_Pointer;
 
-   function countUp (mem : in out T_Memory;
-                     objectPointer : T_Pointer)
-                     return T_Pointer;
+   procedure countUp (mem : in out T_Memory;
+                     objectPointer : T_Pointer);
 
-   function countDown (mem : in out T_Memory;
-                       objectPointer : T_Pointer)
-                       return T_Pointer;
+   procedure countDown (mem : in out T_Memory;
+                       objectPointer : T_Pointer);
 
    --function getRootObjects(mem : T_Memory) return T_WordsSeq_Ptr;
    --function getRootObjectsList(mem : T_Memory) return T_WordsList_Ptr;
@@ -338,38 +329,39 @@ package RSmalltalk.Memory.Objects is
    procedure rectifyCountsAndDeallocateGarbage (mem : in out T_Memory);
 
    -- ObjectMemory methods for Interpreter
+   
    function fetchPointer
      (mem           : T_Memory;
       fieldIndex    : T_Word;
       objectPointer : T_Pointer) return T_Pointer;
 
-   function storePointer
+   procedure storePointer
      (mem           : in out T_Memory;
       fieldIndex    : T_Word;
       objectPointer : T_Pointer;
-      valuePointer  : T_Word) return T_Word;
+      valuePointer  : T_Word);
 
    function fetchWord
      (mem           : T_Memory;
       wordIndex     : T_Word;
       objectPointer : T_Pointer) return T_Word;
 
-   function storeWord
+   procedure storeWord
      (mem           : in out T_Memory;
       wordIndex     : T_Word;
       objectPointer : T_Pointer;
-      valueWord     : T_Word) return T_Word;
+      valueWord     : T_Word);
 
    function fetchByte
      (mem           : T_Memory;
       byteIndex     : T_Word;
       objectPointer : T_Pointer) return T_Byte;
 
-   function storeByte
+   procedure storeByte
      (mem           : in out T_Memory;
       byteIndex     : T_Word;
       objectPointer : T_Pointer;
-      valueByte     : T_Byte) return T_Byte;
+      valueByte     : T_Byte);
 
    procedure increaseReferencesTo (mem : in out T_Memory;
                                    objectPointer : T_Pointer);
