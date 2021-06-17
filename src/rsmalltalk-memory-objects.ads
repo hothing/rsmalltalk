@@ -4,16 +4,18 @@ package RSmalltalk.Memory.Objects is
 
    type T_Memory (scount : T_SegmentIndex) is private;
 
-   subtype T_Counter is T_Byte;
-
+   subtype T_Counter_5 is T_Byte range 0 .. (2**5 - 1);
+   subtype T_Counter_6 is T_Byte range 0 .. (2**5 - 1);
+   subtype T_Counter_8 is T_Byte;
+   subtype T_Counter_11 is T_Word range 0 .. (2**11 - 1);
+   
    type T_ObjectEntryHeader is record
-      count   : T_Counter;
+      count   : T_Counter_8;
       p       : Boolean;
       o       : Boolean;
       f       : Boolean;
       segment : T_SegmentIndex;
    end record;
-
    for T_ObjectEntryHeader use record
       segment at 0 range 0 ..  3; -- see HeapSegmentCount
       p       at 0 range 4 ..  4;
@@ -23,19 +25,78 @@ package RSmalltalk.Memory.Objects is
    end record;
    for T_ObjectEntryHeader'Size use T_Word'Size;
 
-   type T_ObjectTableEntry is record
-      hdr      : T_ObjectEntryHeader;
-      location : T_Word;
-   end record;
+--     type T_ObjectTableEntry is record
+--        hdr      : T_ObjectEntryHeader;
+--        location : T_Pointer;
+--     end record;
+
+   -------------------
    
-   type T_HookProcError is access procedure(errId : T_Word);
+   subtype T_MethodHeaderFlags is T_Byte range 0..7;
+   
+   type T_MethodHeader is record
+      smi     : Boolean;
+      flags   : T_MethodHeaderFlags;
+      tcount  : T_Counter_5;
+      large   : Boolean;
+      lcount  : T_Counter_6;
+   end record;   
+   for T_MethodHeader use record
+      smi     at 0 range 0 .. 0;
+      lcount  at 0 range 1 .. 6;
+      large   at 0 range 7 .. 7;
+      tcount  at 0 range 8 .. 12;
+      flags   at 0 range 13 .. 15;
+   end record;
+   for T_MethodHeader'Size use T_Word'Size;
+      
+   type T_MethodHeaderExtention is record
+      smi     : Boolean;
+      prim    : T_Byte; -- primitive index
+      acount  : T_Counter_5; -- argument count
+   end record;   
+   for T_MethodHeaderExtention use record
+      smi     at 0 range 0 .. 0;
+      prim    at 0 range 1 .. 8;
+      acount  at 0 range 9 .. 13;
+   end record;
+   for T_MethodHeaderExtention'Size use T_Word'Size;
+
+   MH_FLAG_ARG0 : constant := 0; -- no primitive and 0 argument
+   MH_FLAG_ARG1 : constant := 1; -- no primitive and 1 argument
+   MH_FLAG_ARG2 : constant := 2; -- no primitive and 2 argument
+   MH_FLAG_ARG3 : constant := 3; -- no primitive and 3 argument
+   MH_FLAG_ARG4 : constant := 4; -- no primitive and 4 argument
+   MH_FLAG_RETURN_SELF : constant := 5; -- primitive and self return
+   MH_FLAG_RETURN_IVAR : constant := 6; -- primitive and return of an instance variable
+   MH_FLAG_EXTENTION : constant := 0; -- a header extention
+   
+   ------------------
+
+   type T_InstanceSpecification is record
+      smi     : Boolean;
+      fcount  : T_Counter_11; -- fixed field count
+      zero    : Boolean;
+      indexable : Boolean; -- is indexable or structure
+      words     : Boolean; -- storage unit is word or byte
+      pointers  : Boolean; -- contains the pointers or numbers
+   end record;   
+   for T_InstanceSpecification use record
+      smi       at 0 range 0 .. 0;
+      fcount    at 0 range 1 .. 11;
+      zero      at 0 range 12 .. 12;
+      indexable at 0 range 13 .. 13;
+      words     at 0 range 14 .. 14;
+      pointers  at 0 range 15 .. 15;
+   end record;
+   for T_InstanceSpecification'Size use T_Word'Size;
+   
+   ------------------
+
+   type T_ErrorHandler is access procedure(errId : T_Word);
 
    procedure cantBeIntegerObject (mem : T_Memory; 
                                   objectPointer : T_Pointer);
-
-   function isIntegerObject
-     ( mem: T_Memory;
-       objectPointer : T_Pointer)  return Boolean;
 
    function getObjectRef (mem : T_Memory; objectPointer : T_Pointer) return T_Word;
 
@@ -60,7 +121,8 @@ package RSmalltalk.Memory.Objects is
    function putOddFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : Boolean) return Boolean;
+      value         : Boolean)
+      return T_Word;
 
    function getFreeFieldOf
      (mem           : T_Memory;
@@ -69,7 +131,8 @@ package RSmalltalk.Memory.Objects is
    function putFreeFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : Boolean) return Boolean;
+      value         : Boolean)
+      return T_Word;
 
    function getPtrFieldOf
      (mem           : T_Memory;
@@ -78,16 +141,19 @@ package RSmalltalk.Memory.Objects is
    function putPtrFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : Boolean) return Boolean;
+      value         : Boolean)
+      return T_Word;
 
    function getSegmentFieldOf
      (mem           : T_Memory;
-      objectPointer : T_Pointer) return T_SegmentIndex;
+      objectPointer : T_Pointer)
+      return T_SegmentIndex;
 
    function putSegmentFieldOf
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
-      value         : T_SegmentIndex) return T_SegmentIndex;
+      value         : T_SegmentIndex)
+      return T_Word;
 
    function getLocationFieldOf
      (mem           : T_Memory;
@@ -360,8 +426,7 @@ private
     type T_Memory (scount : T_SegmentIndex) is record -- this is RealObjectMemory
       wordMemory     : T_SegmentedMemory (scount);
       currentSegment : T_SegmentIndex;
-      res            : T_Word;
-      errorProc      : T_HookProcError;
+      errorProc      : T_ErrorHandler;
    end record;
  
 end RSmalltalk.Memory.Objects;
