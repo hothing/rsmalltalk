@@ -1,50 +1,117 @@
 package body RSmalltalk.Memory.ObjTable is
 
-   function getHeader (mem : T_Memory;
-                          objectPointer : T_Pointer
+   function isPointerValid(ptr : T_Pointer) return Boolean
+   is
+   begin
+      return not isIntegerObject(ptr)
+        and ptr >= C_OTStart;
+   end isPointerValid;
+   pragma Inline_Always(isPointerValid);
+
+   function getHeader_unsafe (mem : T_Memory;
+                       objectPointer : T_Pointer
                       ) return T_ObjectEntryHeader
    is
-      p : T_Pointer := C_ObjectTableStart + objectPointer * 2;
+      p : T_Pointer := C_OTStart + objectPointer;
       w : T_Word;
       h : T_ObjectEntryHeader;
       for h'Address use w'Address;
    begin
-      w := get(mem.wordMemory, C_ObjectTableSegment, p);
+      w := get(mem, C_ObjectTableSegment, p);
+      return h;
+   end getHeader_unsafe;
+   pragma Inline_Always(getHeader_unsafe);
+
+   function getHeader (mem : T_Memory;
+                       objectPointer : T_Pointer
+                      ) return T_ObjectEntryHeader
+   is
+      h : T_ObjectEntryHeader;
+   begin
+      if isPointerValid(objectPointer)
+      then
+         h := getHeader_unsafe(mem, objectPointer);
+      else
+         raise Wrong_Parameter_Exception;
+      end if;
       return h;
    end getHeader;
 
+
+   procedure putHeader_unsafe
+     (mem           : in out T_Memory;
+      objectPointer : T_Pointer;
+      value         : T_ObjectEntryHeader)
+   is
+      p : T_Pointer := C_OTStart + objectPointer;
+      w : T_Word;
+      h : T_ObjectEntryHeader := value;
+      for h'Address use w'Address;
+   begin
+      put(mem, C_ObjectTableSegment, p, w);
+   end putHeader_unsafe;
+   pragma Inline_Always(putHeader_unsafe);
 
    procedure putHeader
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_ObjectEntryHeader)
    is
-      p : T_Pointer := C_ObjectTableStart + objectPointer * 2;
-      w : T_Word;
-      h : T_ObjectEntryHeader := value;
-      for h'Address use w'Address;
    begin
-      put(mem.wordMemory, C_ObjectTableSegment, p, w);
+      if isPointerValid(objectPointer) then
+         putHeader_unsafe(mem, objectPointer, value);
+      else
+         raise Wrong_Parameter_Exception;
+      end if;
    end putHeader;
 
-   function getLocationOf
+   function getLocation_unsafe
      (mem           : T_Memory;
       objectPointer : T_Pointer) return T_Word
    is
-      p : T_Pointer := C_ObjectTableStart + objectPointer * 2 + 1;
+      p : T_Pointer := C_OTStart + objectPointer + 1;
    begin
-      return get(mem.wordMemory, C_ObjectTableSegment, p);
-   end getLocationOf;
+      return get(mem, C_ObjectTableSegment, p);
+   end getLocation_unsafe;
+   pragma Inline_Always(getLocation_unsafe);
 
-   procedure putLocationOf
+   function getLocation
+     (mem           : T_Memory;
+      objectPointer : T_Pointer) return T_Word
+   is
+      p : T_Pointer := C_OTStart + objectPointer + 1;
+   begin
+      if isPointerValid(objectPointer) then
+         return getLocation_unsafe(mem, objectPointer);
+      else
+         raise Wrong_Parameter_Exception;
+         return 0;
+      end if;
+   end getLocation;
+
+   procedure putLocation_unsafe
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_Word)
    is
-      p : T_Pointer := C_ObjectTableStart + objectPointer * 2 + 1;
+      p : T_Pointer := C_OTStart + objectPointer + 1;
    begin
-      put(mem.wordMemory, C_ObjectTableSegment, p, value);
-   end putLocationOf;
+      put(mem, C_ObjectTableSegment, p, value);
+   end putLocation_unsafe;
+   pragma Inline_Always(putLocation_unsafe);
+
+   procedure putLocation
+     (mem           : in out T_Memory;
+      objectPointer : T_Pointer;
+      value         : T_Word)
+   is
+   begin
+      if isPointerValid(objectPointer) then
+         putLocation_unsafe(mem, objectPointer, value);
+      else
+         raise Wrong_Parameter_Exception;
+      end if;
+   end putLocation;
 
    function getNextFree
      (mem           : T_Memory;
@@ -55,7 +122,7 @@ package body RSmalltalk.Memory.ObjTable is
    begin
       h := getHeader(mem, objectPointer);
       if h.free then
-         p := getLocationOf(mem, objectPointer);
+         p := getLocation(mem, objectPointer);
          if p /=C_NonPointer then
             return T_Pointer(p);
          else

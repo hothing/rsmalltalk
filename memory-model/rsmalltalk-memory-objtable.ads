@@ -26,6 +26,11 @@ package RSmalltalk.Memory.ObjTable is
    end record;
    for T_ObjectEntryHeader'Size use T_Word'Size; 
    
+   C_OTFreePointerList : constant := 0;
+   C_OTStart : constant := C_OTFreePointerList + 1;
+   
+   Wrong_Parameter_Exception: exception;
+   Wrong_Header_Exception: exception;
    
    function getHeader (mem : T_Memory; 
                           objectPointer : T_Pointer 
@@ -36,11 +41,11 @@ package RSmalltalk.Memory.ObjTable is
       objectPointer : T_Pointer;
       value         : T_ObjectEntryHeader);
 
-   function getLocationOf
+   function getLocation
      (mem           : T_Memory;
       objectPointer : T_Pointer) return T_Word;
 
-   procedure putLocationOf
+   procedure putLocation
      (mem           : in out T_Memory;
       objectPointer : T_Pointer;
       value         : T_Word);

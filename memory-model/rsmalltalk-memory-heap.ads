@@ -44,5 +44,21 @@ package RSmalltalk.Memory.Heap is
       seg           : T_SegmentIndex; -- segment index
       objectAddress : T_Word;
       class         : T_Pointer);
+
+   function getObjectField
+     (mem           : T_Memory;
+      seg           : T_SegmentIndex; -- segment index
+      objectAddress : T_Word;
+      fieldIndex    : T_Word
+     ) return T_Pointer;
+
+   procedure putObjectField
+     (mem           : in out T_Memory;
+      seg           : T_SegmentIndex; -- segment index
+      objectAddress : T_Word;
+      fieldIndex    : T_Word;
+      fieldObject   : T_Pointer);
+   
+   function isAddressValid(objectAddress : T_Word) return Boolean;
    
 end RSmalltalk.Memory.Heap;
