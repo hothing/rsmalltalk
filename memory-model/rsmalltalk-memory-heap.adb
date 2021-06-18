@@ -203,14 +203,24 @@ package body RSmalltalk.Memory.Heap is
       fieldIndex    : T_Word;
       fieldObject   : T_Pointer)
    is
+      w_size : T_Word;
    begin
       if isAreaValid(objectAddress, fieldIndex + C_ObjectHeaderSize - 1) then
          if isIntegerObject(T_Word(fieldIndex)) then
-            putObjectField_unsafe(mem,
-                                  seg,
-                                  objectAddress,
-                                  fieldIndex,
-                                  fieldObject);
+            -- validate the fieldIndex
+            w_size := getObjectSize(mem, seg, objectAddress);
+            if w_size < fieldIndex then
+               -- FIXME: condition is a bit bad
+               -- should be: integerObject(w_size) - C_ObjectHeaderSize < integerObject(w_size)
+               -- it look good, then write
+               putObjectField_unsafe(mem,
+                                     seg,
+                                     objectAddress,
+                                     fieldIndex,
+                                     fieldObject);
+            else
+               raise Wrong_Header_Exception;
+            end if;
          else
             raise Wrong_Parameter_Exception;
          end if;
