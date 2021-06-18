@@ -7,8 +7,9 @@ package RSmalltalk.Memory.Heap is
    C_FirstFreeChunkLocation : constant := 0;
    C_LastFreeChunkLocation : constant := C_FirstFreeChunkLocation + C_BigSize;
    
-   Wrong_Parameter_Exception: exception;
-   Wrong_Header_Exception: exception;
+   Wrong_Parameter_Exception  : exception;
+   Wrong_Header_Exception     : exception;
+   Wrong_Address_Exception    : exception;
    
    procedure makeObjectHeader (mem : in out T_Memory;
                               seg : T_SegmentIndex; -- segment index

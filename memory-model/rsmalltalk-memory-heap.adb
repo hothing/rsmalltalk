@@ -46,6 +46,14 @@ package body RSmalltalk.Memory.Heap is
    end isAddressValid;
    pragma Inline_Always(isAddressValid);
 
+   function isAreaValid(objectAddress : T_Word; extraSize : T_Word) return Boolean
+   is
+   begin
+      return (objectAddress > C_LastFreeChunkLocation)
+        and (objectAddress <= T_Word'Last - T_Word(integerValueOf(extraSize)));
+   end isAreaValid;
+   pragma Inline_Always(isAreaValid);
+
    -- object structure manipulation
 
    function getObjectSize_unsafe
@@ -74,7 +82,7 @@ package body RSmalltalk.Memory.Heap is
             return 0;
          end if;
       else
-         raise Wrong_Parameter_Exception;
+         raise Wrong_Address_Exception;
          return 0;
       end if;
    end getObjectSize;
@@ -97,10 +105,14 @@ package body RSmalltalk.Memory.Heap is
       size          : T_Word)
    is
    begin
-      if isIntegerObject(size) and isAddressValid(objectAddress) then
-         putObjectSize_unsafe(mem, seg, objectAddress, size);
+      if isAddressValid(objectAddress) then
+         if isIntegerObject(size) then
+            putObjectSize_unsafe(mem, seg, objectAddress, size);
+         else
+            raise Wrong_Parameter_Exception;
+         end if;
       else
-         raise Wrong_Parameter_Exception;
+         raise Wrong_Address_Exception;
       end if;
    end putObjectSize;
 
@@ -121,7 +133,7 @@ package body RSmalltalk.Memory.Heap is
    is
       w_class : T_Word;
    begin
-      if isAddressValid(objectAddress) then
+      if isAreaValid(objectAddress, 1) then
          w_class := T_Word(getObjectClass_unsafe(mem, seg, objectAddress));
          if not isIntegerObject(w_class) then
             return w_class;
@@ -130,7 +142,7 @@ package body RSmalltalk.Memory.Heap is
             return C_NonPointer;
          end if;
       else
-         raise Wrong_Parameter_Exception;
+         raise Wrong_Address_Exception;
          return C_NonPointer;
       end if;
    end getObjectClass;
@@ -153,11 +165,14 @@ package body RSmalltalk.Memory.Heap is
       class         : T_Pointer)
    is
    begin
-      if not isIntegerObject(T_Word(class)) and isAddressValid(objectAddress)
-      then
-         putObjectClass_unsafe(mem, seg, objectAddress, class);
+      if isAreaValid(objectAddress, 1) then
+         if not isIntegerObject(T_Word(class)) then
+            putObjectClass_unsafe(mem, seg, objectAddress, class);
+         else
+            raise Wrong_Parameter_Exception;
+         end if;
       else
-         raise Wrong_Parameter_Exception;
+         raise Wrong_Address_Exception;
       end if;
    end putObjectClass;
 
@@ -169,7 +184,11 @@ package body RSmalltalk.Memory.Heap is
      ) return T_Pointer
    is
    begin
-      return get(mem, seg, objectAddress + T_Word(integerValueOf(fieldIndex)));
+      return get(mem,
+                 seg,
+                 objectAddress
+                 + C_ObjectHeaderSize
+                 + T_Word(integerValueOf(fieldIndex)));
    end getObjectField_unsafe;
    pragma Inline_Always(getObjectField_unsafe);
 
@@ -183,7 +202,9 @@ package body RSmalltalk.Memory.Heap is
    begin
       put(mem,
           seg,
-          objectAddress + T_Word(integerValueOf(fieldIndex)),
+          objectAddress
+          + C_ObjectHeaderSize
+          + T_Word(integerValueOf(fieldIndex)),
           T_Word(fieldObject));
    end putObjectField_unsafe;
    pragma Inline_Always(putObjectField_unsafe);
@@ -197,13 +218,19 @@ package body RSmalltalk.Memory.Heap is
    is
       w_obj : T_Word;
    begin
-      if isAddressValid(objectAddress)
-        and isIntegerObject(T_Word(fieldIndex))
-      then
-         w_obj := T_Word(getObjectField_unsafe(mem, seg, objectAddress, fieldIndex));
-         return w_obj;
+      if isAreaValid(objectAddress, fieldIndex + C_ObjectHeaderSize) then
+         if isIntegerObject(T_Word(fieldIndex)) then
+            w_obj := T_Word(getObjectField_unsafe(mem,
+                            seg,
+                            objectAddress,
+                            fieldIndex));
+            return w_obj;
+         else
+            raise Wrong_Parameter_Exception;
+            return C_NonPointer;
+         end if;
       else
-         raise Wrong_Parameter_Exception;
+         raise Wrong_Address_Exception;
          return C_NonPointer;
       end if;
    end getObjectField;
@@ -216,12 +243,18 @@ package body RSmalltalk.Memory.Heap is
       fieldObject   : T_Pointer)
    is
    begin
-      if isIntegerObject(T_Word(fieldIndex))
-        and isAddressValid(objectAddress)
-      then
-         putObjectField_unsafe(mem, seg, objectAddress, fieldIndex, fieldObject);
+      if isAreaValid(objectAddress, fieldIndex + C_ObjectHeaderSize) then
+         if isIntegerObject(T_Word(fieldIndex)) then
+            putObjectField_unsafe(mem,
+                                  seg,
+                                  objectAddress,
+                                  fieldIndex,
+                                  fieldObject);
+         else
+            raise Wrong_Parameter_Exception;
+         end if;
       else
-         raise Wrong_Parameter_Exception;
+         raise Wrong_Address_Exception;
       end if;
    end putObjectField;
 
