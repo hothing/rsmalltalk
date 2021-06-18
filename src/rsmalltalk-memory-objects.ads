@@ -1,8 +1,18 @@
-with RSmalltalk.Memory.Segmented; use RSmalltalk.Memory.Segmented;
+with RSmalltalk.Memory; use RSmalltalk.Memory;
 
 package RSmalltalk.Memory.Objects is
-
-   type T_Memory (scount : T_SegmentIndex) is private;
+   
+--     type T_SmallInt is record
+--        smi   : Boolean;
+--        value : T_CompactSmallInteger;
+--     end record;
+--
+--     for T_SmallInt use record
+--        smi   at 0 range 0 ..  0;
+--        value at 0 range 1 .. 15;
+--     end record;
+--     for T_SmallInt'Size use T_Word'Size;
+--
 
    subtype T_Counter_5 is T_Byte range 0 .. (2**5 - 1);
    subtype T_Counter_6 is T_Byte range 0 .. (2**5 - 1);
@@ -282,6 +292,7 @@ package RSmalltalk.Memory.Objects is
                          classPointer : T_Pointer);
 
    -- ObjectMemory:Compaction
+   
    function abandonFreeChunkslnSegment
      (mem     : in out T_Memory;
       segment : T_SegmentIndex)
