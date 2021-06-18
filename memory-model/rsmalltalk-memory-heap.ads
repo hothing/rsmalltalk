@@ -13,7 +13,7 @@ package RSmalltalk.Memory.Heap is
    
    procedure makeObjectHeader (mem : in out T_Memory;
                               seg : T_SegmentIndex; -- segment index
-                              loc : T_Word; -- offset in memory
+                              objectAddress : T_Word; -- offset in memory
                               size : T_Word; -- size of object
                               classPtr : T_Pointer -- pointeer to the class (in object table)
                               );
@@ -21,8 +21,8 @@ package RSmalltalk.Memory.Heap is
 
    function testObjectHeader (mem : in out T_Memory;
                               seg : T_SegmentIndex; -- segment index
-                              loc : T_Word -- offset in memory
-                              ) return Boolean;
+                              objectAddress : T_Word -- offset in memory
+                             ) return Boolean;
    
    function getObjectSize
      (mem           : T_Memory;

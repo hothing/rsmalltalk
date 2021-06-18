@@ -26,25 +26,46 @@ begin
 --     pragma Assert(w0 = w1);
 --     TIO.Put_Line(T_Word'Image(w1));
 
-   w := 40;
-   w0 := integerObjectOf(10);
-   putObjectSize(mem, 1, w, w0);
-   w1 := getObjectSize(mem, 1, w);
-   pragma Assert(w0 = w1);
-   TIO.Put_Line(T_Word'Image(w1));
+--     w := 40;
+--     w0 := integerObjectOf(10);
+--     putObjectSize(mem, 1, w, w0);
+--     w1 := getObjectSize(mem, 1, w);
+--     pragma Assert(w0 = w1);
+--     TIO.Put_Line(T_Word'Image(w1));
+--
+--     w := 40;
+--     w0 := 5678;
+--     putObjectSize(mem, 1, w, integerObjectOf(10));
+--     w1 := getObjectField(mem, 1, w, integerObjectOf(0));
+--     pragma Assert(w0 /= w1);
+--     TIO.Put_Line(T_Word'Image(w1));
+--
+--     w := 40;
+--     w0 := integerObjectOf(10);
+--     putObjectClass(mem, 1, w, w0);
+--     w1 := getObjectClass(mem, 1, w);
+--     pragma Assert(w0 = w1);
+--     TIO.Put_Line(T_Word'Image(w1));
+--
+--     w := 40;
+--     w0 := integerObjectOf(10);
+--     makeObjectHeader(mem, 1, w, w0, C_NilPointer);
+--     w1 := getObjectSize(mem, 1, w);
+--     pragma Assert(w0 = w1);
+--     TIO.Put_Line(T_Word'Image(w1));
+--     w1 := getObjectClass(mem, 1, w);
+--     pragma Assert(C_NilPointer = w1);
+--     TIO.Put_Line(T_Word'Image(w1));
 
-   w := 40;
-   w0 := 5678;
-   putObjectSize(mem, 1, w, integerObjectOf(10));
-   w1 := getObjectField(mem, 1, w, integerObjectOf(0));
-   pragma Assert(w0 /= w1);
-   TIO.Put_Line(T_Word'Image(w1));
-
-   w := 40;
+   w := T_Word'Last - C_ObjectHeaderSize;
    w0 := integerObjectOf(10);
-   putObjectClass(mem, 1, w, w0);
-   w1 := getObjectClass(mem, 1, w);
-   pragma Assert(w0 = w1);
-   TIO.Put_Line(T_Word'Image(w1));
+   makeObjectHeader(mem, 1, w - C_ObjectHeaderSize, integerObjectOf(2), C_NilPointer);
+   putObjectField(mem, 1, w - C_ObjectHeaderSize, integerObjectOf(0), w0);
+   putObjectField(mem, 1, w - C_ObjectHeaderSize, integerObjectOf(1), C_NilPointer);
+   if testObjectHeader(mem, 1, w) then
+      TIO.Put_Line("bad");
+   else
+      TIO.Put_Line("OK: wrong header");
+   end if;
 
 end Memory_Test;
