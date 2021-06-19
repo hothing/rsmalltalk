@@ -264,4 +264,33 @@ package body RSmalltalk.Memory.Heap is
       return res;
    end testObjectHeader;
 
+   function getFreeChunkHead
+     (mem           : T_Memory;
+      seg           : T_SegmentIndex; -- segment index
+      size          : T_Word
+     ) return T_Pointer
+   is
+   begin
+      if size < C_BigSize then
+         return get(mem, seg, C_FirstFreeChunkLocation + size);
+      else
+         return get(mem, seg, C_LastFreeChunkLocation);
+      end if;
+   end getFreeChunkHead;
+
+
+   procedure putFreeChunkHead
+     (mem           : in out T_Memory;
+      seg           : T_SegmentIndex; -- segment index
+      size          : T_Word;
+      chunkHead     : T_Pointer)
+   is
+   begin
+      if size < C_BigSize then
+         put(mem, seg, C_FirstFreeChunkLocation + size, chunkHead);
+      else
+         put(mem, seg, C_LastFreeChunkLocation, chunkHead);
+      end if;
+   end putFreeChunkHead;
+
 end RSmalltalk.Memory.Heap;
