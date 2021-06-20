@@ -9,30 +9,71 @@ package body RSmalltalk.Memory is
    for T_BytesInWord'Size use T_Word'Size;
 
    function Word2Int is new Ada.Unchecked_Conversion(Source => T_Word,
-                                                        Target => T_Int);
+                                                     Target => T_Int);
 
-   function isIntegerValue (value : T_Word) return Boolean is
+   function Word2IntObj is new Ada.Unchecked_Conversion(Source => T_Word,
+                                                        Target => T_IntegerObject);
+
+   function IntObj2Word is new Ada.Unchecked_Conversion(Source => T_IntegerObject,
+                                                        Target => T_Word);
+
+   function isSmallIntValue (value : T_Int) return Boolean is
    begin
-      return (Word2Int(value) >= T_Int'First)
-        and (Word2Int(value) <= T_Int'Last);
-   end isIntegerValue;
+      return (value >= T_SmallInt'First)
+        and (value <= T_SmallInt'Last);
+   end isSmallIntValue;
+
+   function isSmallWordValue (value : T_Word) return Boolean is
+   begin
+      return (value >= T_SmallWord'First)
+        and (value <= T_SmallWord'Last);
+   end isSmallWordValue;
 
    function isIntegerObject(ptr: T_Pointer) return Boolean
    is
    begin
-      return (ptr mod 2) = 1;
+      return asIntegerObject(ptr).int;
    end isIntegerObject;
 
    function integerObjectOf (value : T_Int) return T_Pointer is
+      io : T_IntegerObject;
+      ni : T_Int := value;
    begin
-      return T_Pointer(value * 2 + 1);
+      if not isSmallIntValue(value) then
+         ni := ni / 2;
+      end if;
+      io.val := T_SmallWord(ni);
+      io.int := true;
+      return T_Pointer(IntObj2Word(io));
    end integerObjectOf;
 
+   function integerObjectOf (value : T_Word) return T_Pointer is
+      io : T_IntegerObject;
+      ni : T_Word := value;
+   begin
+      if not isSmallWordValue(value) then
+         ni := ni / 2;
+      end if;
+      io.val := T_SmallWord(ni);
+      io.int := true;
+      return T_Pointer(IntObj2Word(io));
+   end integerObjectOf;
+
+   function asIntegerObject (value : T_Word) return T_IntegerObject is
+   begin
+      return Word2IntObj(value);
+   end asIntegerObject;
+   pragma Inline_Always(asIntegerObject);
 
    function integerValueOf (ptr : T_Pointer) return T_Int is
    begin
-      return T_Int(Word2Int(ptr) / 2);
+      return Word2Int(T_Word(asIntegerObject(ptr).val));
    end integerValueOf;
+
+   function wordValueOf (ptr : T_Pointer) return T_Word is
+   begin
+      return T_Word(asIntegerObject(ptr).val);
+   end wordValueOf;
 
    function get
      (rwm     : in T_Memory;

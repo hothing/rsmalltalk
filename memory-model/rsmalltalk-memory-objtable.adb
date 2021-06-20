@@ -117,13 +117,13 @@ package body RSmalltalk.Memory.ObjTable is
      (mem           : T_Memory;
       objectPointer : T_Pointer) return T_Pointer
    is
-      p : T_Pointer := objectPointer;
+      p : T_Word;
       h : T_ObjectEntryHeader;
    begin
       h := getHeader(mem, objectPointer);
       if h.free then
          p := getLocation(mem, objectPointer);
-         if p /=C_NonPointer then
+         if p /= C_NonPointer then
             return T_Pointer(p);
          else
             return C_NilPointer;
@@ -140,13 +140,15 @@ package body RSmalltalk.Memory.ObjTable is
       h : T_ObjectEntryHeader;
    begin
       h := getHeader(mem, objectPointer);
-      if not h.free then
-         h.count := 0;
+      h.count := 0;
+      if T_SegmentIndex'First /= C_ObjectTableSegment then
          h.segment := T_SegmentIndex'First;
-         h.free := true;
-         h.ptr := false;
-         h.odd := false;
+      else
+         h.segment := T_SegmentIndex'Last;
       end if;
+      h.free := true;
+      h.ptr := false;
+      h.odd := false;
    end markAsFree;
 
 end RSmalltalk.Memory.ObjTable;
