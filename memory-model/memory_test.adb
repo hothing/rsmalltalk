@@ -98,8 +98,8 @@ begin
    TIO.Put_Line(T_Word'Image(wordValueOf(w)));
    TIO.Put_Line(T_Int'Image(integerValueOf(w)));
 
-   TIO.Put_Line("ptr = 8000h");
-   w := 16#8000#;
+   TIO.Put_Line("ptr = 8001h");
+   w := 16#8001#;
    TIO.Put_Line(T_Word'Image(wordValueOf(w)));
    TIO.Put_Line(T_Int'Image(integerValueOf(w)));
 

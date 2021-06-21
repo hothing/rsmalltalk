@@ -25,18 +25,21 @@ package body RSmalltalk.Memory is
       return (value >= T_SmallInt'First)
         and (value <= T_SmallInt'Last);
    end isSmallIntValue;
+   pragma Inline(isSmallIntValue);
 
    function isSmallWordValue (value : T_Word) return Boolean is
    begin
       return (value >= T_SmallWord'First)
         and (value <= T_SmallWord'Last);
    end isSmallWordValue;
+   pragma Inline(isSmallWordValue);
 
    function isIntegerObject(ptr: T_Pointer) return Boolean
    is
    begin
       return asIntegerObject(ptr).int;
    end isIntegerObject;
+   pragma Inline(isIntegerObject);
 
    function integerObjectOf (value : T_Int) return T_Pointer is
       nx : T_Word := Int2Word(value * 2);
@@ -45,6 +48,7 @@ package body RSmalltalk.Memory is
       io.int := true;
       return T_Pointer(IntObj2Word(io));
    end integerObjectOf;
+   pragma Inline(integerObjectOf);
 
    function integerObjectOf (value : T_Word) return T_Pointer is
       ni : T_Word := value * 2;
@@ -54,12 +58,13 @@ package body RSmalltalk.Memory is
       io.int := true;
       return T_Pointer(IntObj2Word(io));
    end integerObjectOf;
+   pragma Inline(integerObjectOf);
 
    function asIntegerObject (value : T_Word) return T_IntegerObject is
    begin
       return Word2IntObj(value);
    end asIntegerObject;
-   pragma Inline_Always(asIntegerObject);
+   pragma Inline(asIntegerObject);
 
 --     function integerValueOf (ptr : T_Pointer) return T_Int is
 --     begin
@@ -70,11 +75,13 @@ package body RSmalltalk.Memory is
    begin
       return Word2Int(T_Word(ptr) and not 1) / 2;
    end integerValueOf;
+   pragma Inline(integerValueOf);
 
    function wordValueOf (ptr : T_Pointer) return T_Word is
    begin
       return T_Word(asIntegerObject(ptr).val);
    end wordValueOf;
+   pragma Inline(wordValueOf);
 
    function get
      (rwm     : in T_Memory;
