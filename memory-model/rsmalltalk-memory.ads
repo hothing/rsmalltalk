@@ -7,7 +7,7 @@ package RSmalltalk.Memory is
    subtype T_Int is Integer_16;
    
    subtype T_SmallWord is T_Word range T_Word'First .. T_Word'Last / 2;
-   subtype T_SmallInt is Integer_16 range -(2**14 -1) .. 2**14;
+   subtype T_SmallInt is Integer_16 range -2**14 .. 2**14 - 1;
 
    subtype T_Pointer is T_Word;
 

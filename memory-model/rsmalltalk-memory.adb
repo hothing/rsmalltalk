@@ -11,6 +11,9 @@ package body RSmalltalk.Memory is
    function Word2Int is new Ada.Unchecked_Conversion(Source => T_Word,
                                                      Target => T_Int);
 
+   function Int2Word is new Ada.Unchecked_Conversion(Source => T_Int,
+                                                     Target => T_Word);
+
    function Word2IntObj is new Ada.Unchecked_Conversion(Source => T_Word,
                                                         Target => T_IntegerObject);
 
@@ -36,25 +39,18 @@ package body RSmalltalk.Memory is
    end isIntegerObject;
 
    function integerObjectOf (value : T_Int) return T_Pointer is
-      io : T_IntegerObject;
-      ni : T_Int := value;
+      nx : T_Word := Int2Word(value * 2);
+      io : T_IntegerObject := Word2IntObj(nx);
    begin
-      if not isSmallIntValue(value) then
-         ni := ni / 2;
-      end if;
-      io.val := T_SmallWord(ni);
       io.int := true;
       return T_Pointer(IntObj2Word(io));
    end integerObjectOf;
 
    function integerObjectOf (value : T_Word) return T_Pointer is
+      ni : T_Word := value * 2;
       io : T_IntegerObject;
-      ni : T_Word := value;
+      for io'Address use ni'Address;
    begin
-      if not isSmallWordValue(value) then
-         ni := ni / 2;
-      end if;
-      io.val := T_SmallWord(ni);
       io.int := true;
       return T_Pointer(IntObj2Word(io));
    end integerObjectOf;
@@ -65,9 +61,14 @@ package body RSmalltalk.Memory is
    end asIntegerObject;
    pragma Inline_Always(asIntegerObject);
 
+--     function integerValueOf (ptr : T_Pointer) return T_Int is
+--     begin
+--        return Word2Int(T_Word(asIntegerObject(ptr).val));
+--     end integerValueOf;
+
    function integerValueOf (ptr : T_Pointer) return T_Int is
    begin
-      return Word2Int(T_Word(asIntegerObject(ptr).val));
+      return Word2Int(T_Word(ptr) and not 1) / 2;
    end integerValueOf;
 
    function wordValueOf (ptr : T_Pointer) return T_Word is
