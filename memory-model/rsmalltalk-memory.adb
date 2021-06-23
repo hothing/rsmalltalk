@@ -14,10 +14,10 @@ package body RSmalltalk.Memory is
    function Int2Word is new Ada.Unchecked_Conversion(Source => T_Int,
                                                      Target => T_Word);
 
-   function Word2IntObj is new Ada.Unchecked_Conversion(Source => T_Word,
-                                                        Target => T_IntegerObject);
+   function W2NO is new Ada.Unchecked_Conversion(Source => T_Word,
+                                                        Target => T_NumericObject);
 
-   function IntObj2Word is new Ada.Unchecked_Conversion(Source => T_IntegerObject,
+   function NO2W is new Ada.Unchecked_Conversion(Source => T_NumericObject,
                                                         Target => T_Word);
 
    function isSmallIntValue (value : T_Int) return Boolean is
@@ -34,54 +34,80 @@ package body RSmalltalk.Memory is
    end isSmallWordValue;
    pragma Inline(isSmallWordValue);
 
-   function isIntegerObject(ptr: T_Pointer) return Boolean
+   function isIntegerObject(so: T_NumericObject) return Boolean
    is
    begin
-      return asIntegerObject(ptr).int;
+      return so.int;
    end isIntegerObject;
    pragma Inline(isIntegerObject);
 
-   function integerObjectOf (value : T_Int) return T_Pointer is
-      nx : T_Word := Int2Word(value * 2);
-      io : T_IntegerObject := Word2IntObj(nx);
+   function isIntegerObject(value: T_Word) return Boolean
+   is
    begin
-      io.int := true;
-      return T_Pointer(IntObj2Word(io));
+      return (value and 16#1#) = 16#1#;
+   end isIntegerObject;
+   pragma Inline(isIntegerObject);
+
+   function integerObjectOf (value : T_Int) return T_IntObject
+   is
+      so : T_IntObject := (int => true, val=> T_SmallInt(value));
+   begin
+      return so;
    end integerObjectOf;
    pragma Inline(integerObjectOf);
 
-   function integerObjectOf (value : T_Word) return T_Pointer is
-      ni : T_Word := value * 2;
-      io : T_IntegerObject;
-      for io'Address use ni'Address;
+   function wordObjectOf (value : T_Word) return T_IntObject
+   is
+      so : T_IntObject := (int => true,
+                           val=> T_SmallInt(Word2Int(value)));
    begin
-      io.int := true;
-      return T_Pointer(IntObj2Word(io));
-   end integerObjectOf;
-   pragma Inline(integerObjectOf);
+      return so;
+   end wordObjectOf;
+   pragma Inline(wordObjectOf);
 
-   function asIntegerObject (value : T_Word) return T_IntegerObject is
+   function integerValueOf (so : T_NumericObject) return T_Int is
    begin
-      return Word2IntObj(value);
-   end asIntegerObject;
-   pragma Inline(asIntegerObject);
-
---     function integerValueOf (ptr : T_Pointer) return T_Int is
---     begin
---        return Word2Int(T_Word(asIntegerObject(ptr).val));
---     end integerValueOf;
-
-   function integerValueOf (ptr : T_Pointer) return T_Int is
-   begin
-      return Word2Int(T_Word(ptr) and not 1) / 2;
+      return T_Int(so.val);
    end integerValueOf;
    pragma Inline(integerValueOf);
 
-   function wordValueOf (ptr : T_Pointer) return T_Word is
+   function wordValueOf (so : T_NumericObject) return T_Word is
    begin
-      return T_Word(asIntegerObject(ptr).val);
+      return T_Word(Int2Word(so.val));
    end wordValueOf;
    pragma Inline(wordValueOf);
+
+   function rawValueOf (so : T_NumericObject) return T_Word is
+
+   begin
+      if so.int then
+         return Int2Word(so.val * 2) or 16#1#;
+      else
+         return T_Word(so.addr * 2);
+      end if;
+   end rawValueOf;
+   pragma Inline(rawValueOf);
+
+   function addressOf (so : T_NumericObject) return T_Word is
+   begin
+      return T_Word(so.addr);
+   end addressOf;
+   pragma Inline(addressOf);
+
+   function asIntObject (value : T_Word) return T_IntObject is
+      so : T_NumericObject := W2NO(value);
+   begin
+      return so;
+   end asIntObject;
+   pragma Inline(asIntObject);
+
+   function asPointer (value : T_Word) return T_Pointer is
+      so : T_NumericObject := W2NO(value);
+   begin
+      return so;
+   end asPointer;
+   pragma Inline(asPointer);
+   ------------------------
 
    function get
      (rwm     : in T_Memory;

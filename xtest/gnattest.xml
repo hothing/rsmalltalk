@@ -1,0 +1,137 @@
+<tests_mapping mode="monolith">
+   <unit source_file="rsmalltalk-memory-heap.ads">
+      <test_unit target_file="rsmalltalk-memory-heap-test_data-tests.ads">
+         <setup file="rsmalltalk-memory-heap-test_data.adb" name="Set_Up" line="8"  column="4"/>
+         <teardown file="rsmalltalk-memory-heap-test_data.adb" name="Tear_Down" line="14"  column="4"/>
+         <tested name="isAddressValid" line="16" column="13">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="39" column="1" name="Test_isAddressValid_8c0d86" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="isAreaValid" line="20" column="13">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="60" column="1" name="Test_isAreaValid_59da17" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="getObjectSize" line="23" column="13">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="81" column="1" name="Test_getObjectSize_65aec1" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="putObjectSize" line="28" column="14">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="102" column="1" name="Test_putObjectSize_50c828" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="getObjectClass" line="34" column="13">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="123" column="1" name="Test_getObjectClass_2cdfd1" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="putObjectClass" line="39" column="14">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="144" column="1" name="Test_putObjectClass_3be3f6" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="getObjectField" line="45" column="13">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="165" column="1" name="Test_getObjectField_45285b" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="putObjectField" line="52" column="14">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="186" column="1" name="Test_putObjectField_6a1496" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="makeObjectHeader" line="59" column="14">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="207" column="1" name="Test_makeObjectHeader_ebbaa5" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="testObjectHeader" line="71" column="13">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="228" column="1" name="Test_testObjectHeader_c34199" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="getFreeChunkHead" line="76" column="13">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="249" column="1" name="Test_getFreeChunkHead_b46415" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="putFreeChunkHead" line="82" column="14">
+            <test file="rsmalltalk-memory-heap-test_data-tests.adb" line="270" column="1" name="Test_putFreeChunkHead_2167be" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <dangling>
+         </dangling>
+      </test_unit>
+   </unit>
+   <unit source_file="rsmalltalk-memory-manager.ads">
+      <test_unit target_file="rsmalltalk-memory-manager-test_data-tests.ads">
+         <setup file="rsmalltalk-memory-manager-test_data.adb" name="Set_Up" line="8"  column="4"/>
+         <teardown file="rsmalltalk-memory-manager-test_data.adb" name="Tear_Down" line="14"  column="4"/>
+         <tested name="allocate" line="3" column="13">
+            <test file="rsmalltalk-memory-manager-test_data-tests.adb" line="39" column="1" name="Test_allocate_3dab65" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="deallocate" line="5" column="14">
+            <test file="rsmalltalk-memory-manager-test_data-tests.adb" line="60" column="1" name="Test_deallocate_477675" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="free" line="7" column="14">
+            <test file="rsmalltalk-memory-manager-test_data-tests.adb" line="81" column="1" name="Test_free_b6109f" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <dangling>
+         </dangling>
+      </test_unit>
+   </unit>
+   <unit source_file="rsmalltalk-memory-objtable.ads">
+      <test_unit target_file="rsmalltalk-memory-objtable-test_data-tests.ads">
+         <setup file="rsmalltalk-memory-objtable-test_data.adb" name="Set_Up" line="8"  column="4"/>
+         <teardown file="rsmalltalk-memory-objtable-test_data.adb" name="Tear_Down" line="14"  column="4"/>
+         <tested name="getHeader" line="35" column="13">
+            <test file="rsmalltalk-memory-objtable-test_data-tests.adb" line="39" column="1" name="Test_getHeader_c4bc16" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="putHeader" line="39" column="14">
+            <test file="rsmalltalk-memory-objtable-test_data-tests.adb" line="60" column="1" name="Test_putHeader_e46893" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="getLocation" line="44" column="13">
+            <test file="rsmalltalk-memory-objtable-test_data-tests.adb" line="81" column="1" name="Test_getLocation_6e173c" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="putLocation" line="48" column="14">
+            <test file="rsmalltalk-memory-objtable-test_data-tests.adb" line="102" column="1" name="Test_putLocation_17edcc" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="getNextFree" line="53" column="13">
+            <test file="rsmalltalk-memory-objtable-test_data-tests.adb" line="123" column="1" name="Test_getNextFree_d10510" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <dangling>
+         </dangling>
+      </test_unit>
+   </unit>
+   <unit source_file="rsmalltalk-memory.ads">
+      <test_unit target_file="rsmalltalk-memory-test_data-tests.ads">
+         <setup file="rsmalltalk-memory-test_data.adb" name="Set_Up" line="8"  column="4"/>
+         <teardown file="rsmalltalk-memory-test_data.adb" name="Tear_Down" line="14"  column="4"/>
+         <tested name="isSmallIntValue" line="44" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="39" column="1" name="Test_isSmallIntValue_9fb3ca" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="isSmallWordValue" line="46" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="60" column="1" name="Test_isSmallWordValue_b737f5" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="isIntegerObject" line="48" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="81" column="1" name="Test_isIntegerObject_3fe95a" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="integerValueOf" line="50" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="102" column="1" name="Test_integerValueOf_ae2006" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="wordValueOf" line="52" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="123" column="1" name="Test_wordValueOf_c1bc3d" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="integerObjectOf" line="54" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="144" column="1" name="Test_integerObjectOf_d08c18" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="integerObjectOf" line="56" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="165" column="1" name="Test_integerObjectOf_50721f" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="asIntegerObject" line="58" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="186" column="1" name="Test_asIntegerObject_538866" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="get" line="70" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="207" column="1" name="Test_get_422982" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="get" line="75" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="228" column="1" name="Test_get_fecc58" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="put" line="81" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="249" column="1" name="Test_put_d55f44" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="put" line="87" column="13">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="270" column="1" name="Test_put_a7c9ed" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="put" line="94" column="14">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="291" column="1" name="Test_put_862726" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <tested name="put" line="100" column="14">
+            <test file="rsmalltalk-memory-test_data-tests.adb" line="312" column="1" name="Test_put_a48197" timestamp="2021-06-22 09:16:29"/>
+         </tested>
+         <dangling>
+         </dangling>
+      </test_unit>
+   </unit>
+   <additional_tests/>
+</tests_mapping>

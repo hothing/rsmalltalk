@@ -29,8 +29,11 @@ package RSmalltalk.Memory.ObjTable is
    C_OTFreePointerList : constant := 0;
    C_OTStart : constant := C_OTFreePointerList + 1;
    
-   Wrong_Parameter_Exception: exception;
-   Wrong_Header_Exception: exception;
+   Wrong_Parameter_Exception       : exception;
+   Wrong_ObjectHeader_Exception    : exception;
+   Wrong_Pointer_Format_Exception  : exception;
+   
+   procedure init(mem : in out T_Memory);
    
    function getHeader (mem : T_Memory; 
                           objectPointer : T_Pointer 
@@ -53,5 +56,9 @@ package RSmalltalk.Memory.ObjTable is
    function getNextFree
      (mem           : T_Memory;
       objectPointer : T_Pointer) return T_Pointer;
+   
+   function isPointerValid(mem : T_Memory; ptr : T_Pointer) return Boolean;
+   
+   function obtainPointer(mem : in out T_Memory) return T_Pointer;
    
 end RSmalltalk.Memory.ObjTable;

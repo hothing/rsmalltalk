@@ -10,7 +10,7 @@ package RSmalltalk.Memory.Heap is
    Wrong_Parameter_Exception  : exception;
    Wrong_Header_Exception     : exception;
    Wrong_Address_Exception    : exception;
-   
+   Wrong_Value_Exception      : exception;
 
    -- a function checks the address is in segment bounds 
    function isAddressValid(objectAddress : T_Word) return Boolean;

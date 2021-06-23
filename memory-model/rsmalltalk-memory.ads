@@ -8,12 +8,6 @@ package RSmalltalk.Memory is
    
    subtype T_SmallWord is T_Word range T_Word'First .. T_Word'Last / 2;
    subtype T_SmallInt is Integer_16 range -2**14 .. 2**14 - 1;
-
-   subtype T_Pointer is T_Word;
-
-   C_NilPointer         : constant := 0;
-   -- Any sixteen-bit value that cannot be an object table index
-   C_NonPointer         : constant := T_Pointer'Last;
    
    -- segment index of the object table
    C_ObjectTableSegment : constant := 0;
@@ -24,19 +18,30 @@ package RSmalltalk.Memory is
    -- segment index of the end of heap
    C_LastHeapSegment  : constant := (C_FirstHeapSegment + C_HeapSegmentCount - 1);
    
-   -- Smalltalk numeric variant object: SmallInteger or Pointer
-   type T_IntegerObject is record
-      -- SmallInteger/SmallWord value when = 1, or Pointer when = 0
-      int : Boolean; 
-      -- value itself
-      val : T_SmallWord; 
+   type T_NumericObject(int : Boolean) is record
+      case int is
+         when false => addr : T_SmallWord;
+         when true => val : T_SmallInt;
+      end case;
    end record;
-   for T_IntegerObject use record
-      int at 0 range 0 .. 0;
-      val at 0 range 1 .. 15;
+   for T_NumericObject use record
+      int  at 0 range 0 .. 0;
+      addr at 0 range 1 .. 15;
+      val  at 0 range 1 .. 15;
    end record;
-   for T_IntegerObject'Size use T_Word'Size;
+   for T_NumericObject'Size use T_Word'Size;
+   
+   subtype T_Pointer is T_NumericObject(false);
+   subtype T_IntObject is T_NumericObject(true);
 
+   
+   C_RawNilPointer      : constant := T_SmallWord'First;
+   C_NilPointer         : constant T_Pointer := (int => false, addr => C_RawNilPointer);
+   
+   -- Any sixteen-bit value that cannot be an object table index
+   C_RawNonPointer      : constant := T_SmallWord'Last;
+   C_NonPointer         : constant T_Pointer := (int => false, addr => C_RawNonPointer);
+   
    subtype T_SegmentIndex is T_Byte range 0 .. (C_HeapSegmentCount - 1);
    
    type T_Memory(scount : T_SegmentIndex) is private;
@@ -45,17 +50,25 @@ package RSmalltalk.Memory is
    
    function isSmallWordValue (value : T_Word) return Boolean;
    
-   function isIntegerObject(ptr: T_Pointer) return Boolean;
-
-   function integerValueOf (ptr : T_Pointer) return T_Int;
+   function isIntegerObject(so: T_NumericObject) return Boolean;
    
-   function wordValueOf (ptr : T_Pointer) return T_Word;
-
-   function integerObjectOf (value : T_Int) return T_Pointer;
-
-   function integerObjectOf (value : T_Word) return T_Pointer;
+   function isIntegerObject (value: T_Word) return Boolean;
    
-   function asIntegerObject (value : T_Word) return T_IntegerObject;
+   function integerValueOf (so : T_NumericObject) return T_Int;
+      
+   function wordValueOf (so : T_NumericObject) return T_Word;
+   
+   function addressOf (so : T_NumericObject) return T_Word;
+   
+   function rawValueOf (so : T_NumericObject) return T_Word;
+
+   function integerObjectOf (value : T_Int) return T_IntObject;
+
+   function wordObjectOf (value : T_Word) return T_IntObject;
+   
+   function asIntObject (value : T_Word) return T_IntObject;
+   
+   function asPointer (value : T_Word) return T_Pointer;
    
 private
    

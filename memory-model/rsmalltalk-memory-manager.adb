@@ -29,25 +29,29 @@ package body RSmalltalk.Memory.Manager is
       null;
    end free;
 
-   function obtainPointer(mem : T_Memory) return T_Pointer
-   is
-   begin
-      pragma Compile_Time_Warning(True, "'obtainPointer' unimplemneted");
-      return C_NilPointer;
-   end obtainPointer;
-
    procedure initFreeChunkList(mem: in out T_Memory; seg : T_SegmentIndex)
    is
-      addr : T_Word := Heap.C_LastFreeChunkLocation + 1;
+      addr : T_Word := Heap.C_LastFreeChunkLocation; --+ Heap.C_ObjectHeaderSize;
       ptr : T_Pointer := C_NilPointer;
    begin
-      for sz in T_Word range 2 .. Heap.C_BigSize loop
+      Heap.putFreeChunkHead(mem, seg, 0, C_NilPointer);
+      Heap.putFreeChunkHead(mem, seg, 1, C_NilPointer);
+      for sz in T_Word range Heap.C_ObjectHeaderSize .. Heap.C_BigSize loop
          -- get unused pointer from ObjectTable
          ptr := obtainPointer(mem);
          if ptr /= C_NilPointer then
-            Heap.putFreeChunkHead(mem, seg, sz, ptr);
-            OT.putLocation(mem, ptr, addr);
-            addr := addr + sz + Heap.C_ObjectHeaderSize;
+            if ptr /= C_NonPointer then
+               addr := addr + sz;
+               Heap.makeObjectHeader(mem,
+                                     seg,
+                                     addr,
+                                     integerObjectOf(sz),
+                                     ptr);
+               Heap.putFreeChunkHead(mem, seg, sz, ptr);
+               OT.putLocation(mem, ptr, addr);
+            else
+               null;
+            end if;
          end if;
       end loop;
    end initFreeChunkList;
@@ -59,6 +63,7 @@ package body RSmalltalk.Memory.Manager is
    procedure initialize(mem: in out T_Memory)
    is
    begin
+      pragma Compile_Time_Warning(True, "'initialize' unimplemneted");
       null;
    end initialize;
 
