@@ -5,7 +5,6 @@ package body RSmalltalk.Memory.Heap is
    begin
       return objectAddress > C_LastFreeChunkLocation;
    end isAddressValid;
-   pragma Inline_Always(isAddressValid);
 
    function isAreaValid(objectAddress : T_Word; extraSize : T_Word) return Boolean
    is
@@ -13,9 +12,6 @@ package body RSmalltalk.Memory.Heap is
       return (objectAddress > C_LastFreeChunkLocation)
         and (objectAddress <= T_Word'Last - extraSize);
    end isAreaValid;
-   pragma Inline_Always(isAreaValid);
-
-
 
 
    -- object structure manipulation
@@ -153,23 +149,29 @@ package body RSmalltalk.Memory.Heap is
       seg           : T_SegmentIndex; -- segment index
       objectAddress : T_Word;
       fieldIndex    : T_Word
-     ) return T_Pointer
+     ) return T_NumericObject
    is
+      w : T_Word;
    begin
-      return asPointer(get(mem,
-                       seg,
-                       objectAddress
-                       + C_ObjectHeaderSize
-                       + fieldIndex));
+      w := get(mem,
+               seg,
+               objectAddress
+               + C_ObjectHeaderSize
+               + fieldIndex);
+      if isIntegerObject(w) then
+         return asIntObject(w);
+      else
+         return asPointer(w);
+      end if;
    end getObjectField_unsafe;
-   pragma Inline_Always(getObjectField_unsafe);
+   pragma Inline(getObjectField_unsafe);
 
    procedure putObjectField_unsafe
      (mem           : in out T_Memory;
       seg           : T_SegmentIndex; -- segment index
       objectAddress : T_Word;
       fieldIndex    : T_Word;
-      fieldObject   : T_Pointer)
+      fieldObject   : T_NumericObject)
    is
    begin
       put(mem,
@@ -186,7 +188,7 @@ package body RSmalltalk.Memory.Heap is
       seg           : T_SegmentIndex; -- segment index
       objectAddress : T_Word;
       fieldIndex    : T_Word
-     ) return T_Pointer
+     ) return T_NumericObject
    is
    begin
       if isFieldIndexValid(mem, seg, objectAddress, fieldIndex) then
@@ -205,7 +207,7 @@ package body RSmalltalk.Memory.Heap is
       seg           : T_SegmentIndex; -- segment index
       objectAddress : T_Word;
       fieldIndex    : T_Word;
-      fieldObject   : T_Pointer)
+      fieldObject   : T_NumericObject)
    is
    begin
       if isFieldIndexValid(mem, seg, objectAddress, fieldIndex) then
@@ -222,12 +224,12 @@ package body RSmalltalk.Memory.Heap is
    procedure makeObjectHeader(mem : in out T_Memory;
                               seg : T_SegmentIndex; -- segment index
                               objectAddress : T_Word; -- offset in memory
-                              size : T_Word; -- size of object
+                              fieldsCount : T_Word; -- size of object
                               classPtr : T_Pointer -- pointeer to the class (in object table)
                              )
    is
    begin
-      putObjectSize(mem, seg, objectAddress, size);
+      putObjectSize(mem, seg, objectAddress, C_ObjectHeaderSize + fieldsCount);
       putObjectClass(mem, seg, objectAddress, classPtr);
    end makeObjectHeader;
 
@@ -245,8 +247,7 @@ package body RSmalltalk.Memory.Heap is
       if res then
          w_size := get(mem, seg, objectAddress);
          w_class := get(mem, seg, objectAddress + 1);
-         res := isIntegerObject(w_size)
-           and not isIntegerObject(w_class);
+         res := not isIntegerObject(w_class);
          if res then
             res := isAreaValid(objectAddress, w_size);
          end if;
@@ -284,7 +285,7 @@ package body RSmalltalk.Memory.Heap is
       else
          w := get(mem, seg, C_LastFreeChunkLocation);
       end if;
-      if isIntegerObject(w) then
+      if not isIntegerObject(w) then
          return asPointer(w);
       else
          raise Wrong_Value_Exception;
@@ -299,7 +300,7 @@ package body RSmalltalk.Memory.Heap is
       size          : T_Word;
       chunkHead     : T_Pointer)
    is
-      p : T_Word := wordValueOf(chunkHead);
+      p : T_Word := rawValueOf(chunkHead);
    begin
       if size < C_BigSize then
          put(mem, seg, C_FirstFreeChunkLocation + size, p);

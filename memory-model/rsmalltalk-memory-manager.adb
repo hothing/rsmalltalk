@@ -38,14 +38,14 @@ package body RSmalltalk.Memory.Manager is
       Heap.putFreeChunkHead(mem, seg, 1, C_NilPointer);
       for sz in T_Word range Heap.C_ObjectHeaderSize .. Heap.C_BigSize loop
          -- get unused pointer from ObjectTable
-         ptr := obtainPointer(mem);
+         ptr := OT.obtainPointer(mem);
          if ptr /= C_NilPointer then
             if ptr /= C_NonPointer then
                addr := addr + sz;
                Heap.makeObjectHeader(mem,
                                      seg,
                                      addr,
-                                     integerObjectOf(sz),
+                                     sz,
                                      ptr);
                Heap.putFreeChunkHead(mem, seg, sz, ptr);
                OT.putLocation(mem, ptr, addr);

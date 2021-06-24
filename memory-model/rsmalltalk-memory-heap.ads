@@ -14,12 +14,15 @@ package RSmalltalk.Memory.Heap is
 
    -- a function checks the address is in segment bounds 
    function isAddressValid(objectAddress : T_Word) return Boolean;
+   pragma Inline_Always(isAddressValid);
 
    -- a function checks the address range [address, address + extraSize]
    -- is in segment bounds
    function isAreaValid(objectAddress : T_Word; 
                         extraSize : T_Word) return Boolean;
-   
+   pragma Inline_Always(isAreaValid);
+
+
    function getObjectSize
      (mem           : T_Memory;
       seg           : T_SegmentIndex; -- segment index
@@ -47,19 +50,19 @@ package RSmalltalk.Memory.Heap is
       seg           : T_SegmentIndex; -- segment index
       objectAddress : T_Word;
       fieldIndex    : T_Word
-     ) return T_Pointer;
+     ) return T_NumericObject;
 
    procedure putObjectField
      (mem           : in out T_Memory;
       seg           : T_SegmentIndex; -- segment index
       objectAddress : T_Word;
       fieldIndex    : T_Word;
-      fieldObject   : T_Pointer);
+      fieldObject   : T_NumericObject);
 
    procedure makeObjectHeader (mem : in out T_Memory;
                               seg : T_SegmentIndex; -- segment index
                               objectAddress : T_Word; -- offset in memory
-                              size : T_Word; -- size of object
+                              fieldsCount : T_Word; -- size of object
                               classPtr : T_Pointer -- pointeer to the class (in object table)
                               );
    

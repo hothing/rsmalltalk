@@ -14,6 +14,12 @@ package body RSmalltalk.Memory is
    function Int2Word is new Ada.Unchecked_Conversion(Source => T_Int,
                                                      Target => T_Word);
 
+   function W2I is new Ada.Unchecked_Conversion(Source => T_SmallWord,
+                                                Target => T_SmallInt);
+
+   function I2W is new Ada.Unchecked_Conversion(Source => T_SmallInt,
+                                                Target => T_SmallWord);
+
    function W2NO is new Ada.Unchecked_Conversion(Source => T_Word,
                                                         Target => T_NumericObject);
 
@@ -59,7 +65,7 @@ package body RSmalltalk.Memory is
    function wordObjectOf (value : T_Word) return T_IntObject
    is
       so : T_IntObject := (int => true,
-                           val=> T_SmallInt(Word2Int(value)));
+                           val=> W2I(value));
    begin
       return so;
    end wordObjectOf;
